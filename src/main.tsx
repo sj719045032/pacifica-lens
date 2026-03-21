@@ -2,8 +2,13 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { PrivyProvider } from "@privy-io/react-auth";
+import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 import "./index.css";
 import App from "./App";
+
+const solanaConnectors = toSolanaWalletConnectors({
+  shouldAutoConnect: false,
+});
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -19,6 +24,11 @@ createRoot(document.getElementById("root")!).render(
         embeddedWallets: {
           ethereum: { createOnLogin: "off" },
           solana: { createOnLogin: "off" },
+        },
+        externalWallets: {
+          solana: {
+            connectors: solanaConnectors,
+          },
         },
       }}
     >
