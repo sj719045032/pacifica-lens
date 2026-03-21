@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
 import { type PriceData, formatNumber, formatPrice } from "@/lib/types";
 
@@ -649,90 +649,80 @@ export default function Whales() {
                 sorted.map((trader) => {
                   const isExpanded = expandedAddr === trader.address;
                   return (
-                    <tr key={trader.address} className="contents">
-                      {/* We use a fragment wrapper via two actual <tr> rows */}
-                      <td colSpan={9} className="p-0">
-                        <table className="w-full">
-                          <tbody>
-                            {/* Main row */}
-                            <tr
-                              onClick={() => toggleExpand(trader.address)}
-                              className={`border-b border-border cursor-pointer transition-colors ${
-                                isExpanded
-                                  ? "bg-accent/5"
-                                  : "hover:bg-card-hover"
-                              }`}
-                            >
-                              <td className="px-5 py-3 text-muted font-mono w-12">
-                                {trader.rank}
-                              </td>
-                              <td className="px-5 py-3 text-fg font-mono whitespace-nowrap">
-                                <span className="flex items-center gap-2">
-                                  {truncateAddress(trader.address)}
-                                  {trader.username && (
-                                    <span className="text-xs text-muted">
-                                      ({trader.username})
-                                    </span>
-                                  )}
-                                  <svg
-                                    className={`w-3 h-3 text-muted transition-transform ${
-                                      isExpanded ? "rotate-180" : ""
-                                    }`}
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                  >
-                                    <polyline points="6 9 12 15 18 9" />
-                                  </svg>
-                                </span>
-                              </td>
-                              <td
-                                className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_1d)}`}
-                              >
-                                {formatPnl(trader.pnl_1d)}
-                              </td>
-                              <td
-                                className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_7d)}`}
-                              >
-                                {formatPnl(trader.pnl_7d)}
-                              </td>
-                              <td
-                                className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_30d)}`}
-                              >
-                                {formatPnl(trader.pnl_30d)}
-                              </td>
-                              <td
-                                className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_all_time)}`}
-                              >
-                                {formatPnl(trader.pnl_all_time)}
-                              </td>
-                              <td className="px-5 py-3 text-right font-mono text-fg whitespace-nowrap">
-                                ${formatNumber(trader.equity_current)}
-                              </td>
-                              <td className="px-5 py-3 text-right font-mono text-fg whitespace-nowrap">
-                                ${formatNumber(trader.oi_current)}
-                              </td>
-                              <td className="px-5 py-3 text-right font-mono text-fg whitespace-nowrap">
-                                ${formatNumber(trader.volume_30d)}
-                              </td>
-                            </tr>
-
-                            {/* Expanded detail row */}
-                            {isExpanded && (
-                              <tr className="bg-card-hover/30">
-                                <td colSpan={9}>
-                                  <TraderDetail
-                                    address={trader.address}
-                                    prices={prices}
-                                  />
-                                </td>
-                              </tr>
+                    <React.Fragment key={trader.address}>
+                      <tr
+                        onClick={() => toggleExpand(trader.address)}
+                        className={`border-b border-border cursor-pointer transition-colors ${
+                          isExpanded
+                            ? "bg-accent/5"
+                            : "hover:bg-card-hover"
+                        }`}
+                      >
+                        <td className="px-5 py-3 text-muted font-mono w-12">
+                          {trader.rank}
+                        </td>
+                        <td className="px-5 py-3 text-fg font-mono whitespace-nowrap">
+                          <span className="flex items-center gap-2">
+                            {truncateAddress(trader.address)}
+                            {trader.username && (
+                              <span className="text-xs text-muted">
+                                ({trader.username})
+                              </span>
                             )}
-                          </tbody>
-                        </table>
-                      </td>
-                    </tr>
+                            <svg
+                              className={`w-3 h-3 text-muted transition-transform ${
+                                isExpanded ? "rotate-180" : ""
+                              }`}
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                          </span>
+                        </td>
+                        <td
+                          className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_1d)}`}
+                        >
+                          {formatPnl(trader.pnl_1d)}
+                        </td>
+                        <td
+                          className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_7d)}`}
+                        >
+                          {formatPnl(trader.pnl_7d)}
+                        </td>
+                        <td
+                          className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_30d)}`}
+                        >
+                          {formatPnl(trader.pnl_30d)}
+                        </td>
+                        <td
+                          className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_all_time)}`}
+                        >
+                          {formatPnl(trader.pnl_all_time)}
+                        </td>
+                        <td className="px-5 py-3 text-right font-mono text-fg whitespace-nowrap">
+                          ${formatNumber(trader.equity_current)}
+                        </td>
+                        <td className="px-5 py-3 text-right font-mono text-fg whitespace-nowrap">
+                          ${formatNumber(trader.oi_current)}
+                        </td>
+                        <td className="px-5 py-3 text-right font-mono text-fg whitespace-nowrap">
+                          ${formatNumber(trader.volume_30d)}
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr className="bg-card-hover/30 border-b border-border">
+                          <td colSpan={9}>
+                            <TraderDetail
+                              address={trader.address}
+                              prices={prices}
+                            />
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   );
                 })
               )}
