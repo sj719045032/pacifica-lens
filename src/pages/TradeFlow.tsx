@@ -308,7 +308,7 @@ function LargeTradeAlert({ trade, symbol }: { trade: Trade; symbol: string }) {
 /* -------------------------------------------------------------------------- */
 
 export default function TradeFlow() {
-  const { prices, connected } = usePacificaPrices();
+  const { prices } = usePacificaPrices();
   const [searchParams] = useSearchParams();
   const urlSymbol = searchParams.get("symbol");
 

@@ -375,7 +375,7 @@ const LEADERBOARD_COLUMNS: {
 /* ------------------------------------------------------------------ */
 
 export default function Whales() {
-  const { prices, connected } = usePacificaPrices();
+  const { prices } = usePacificaPrices();
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [lbLoading, setLbLoading] = useState(true);

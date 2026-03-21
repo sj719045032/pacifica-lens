@@ -156,7 +156,7 @@ async function fetchFundingHistory(address: string): Promise<FundingHistory[]> {
 /* -------------------------------------------------------------------------- */
 
 export default function Portfolio() {
-  const { prices, connected } = usePacificaPrices();
+  const { prices } = usePacificaPrices();
   const { user, authenticated } = usePrivy();
   const walletAddress = authenticated ? user?.wallet?.address ?? null : null;
 
