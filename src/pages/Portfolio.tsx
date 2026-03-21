@@ -480,7 +480,7 @@ function AccountOverview({
 /*  Positions Table                                                             */
 /* -------------------------------------------------------------------------- */
 
-interface EnrichedPosition extends Position {
+interface EnrichedPosition extends Omit<Position, "amount"> {
   markPrice: number | null;
   entryPrice: number;
   amount: number;

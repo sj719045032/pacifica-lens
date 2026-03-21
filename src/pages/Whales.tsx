@@ -400,7 +400,21 @@ export default function Whales() {
         const json = await res.json();
         if (cancelled) return;
         if (json.success && Array.isArray(json.data)) {
-          setLeaderboard(json.data.slice(0, 20));
+          const parsed: Trader[] = json.data.slice(0, 20).map((t: Record<string, unknown>) => ({
+            address: String(t.address ?? ""),
+            username: t.username ? String(t.username) : null,
+            pnl_1d: Number(t.pnl_1d) || 0,
+            pnl_7d: Number(t.pnl_7d) || 0,
+            pnl_30d: Number(t.pnl_30d) || 0,
+            pnl_all_time: Number(t.pnl_all_time) || 0,
+            equity_current: Number(t.equity_current) || 0,
+            oi_current: Number(t.oi_current) || 0,
+            volume_1d: Number(t.volume_1d) || 0,
+            volume_7d: Number(t.volume_7d) || 0,
+            volume_30d: Number(t.volume_30d) || 0,
+            volume_all_time: Number(t.volume_all_time) || 0,
+          }));
+          setLeaderboard(parsed);
         } else {
           setLbError("Unexpected API response");
         }
