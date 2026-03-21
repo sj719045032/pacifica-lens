@@ -87,7 +87,7 @@ function IntensityBar({ funding }: { funding: number }) {
 }
 
 export default function Funding() {
-  const { prices, connected } = usePacificaPrices();
+  const { prices } = usePacificaPrices();
   const [chartSymbol, setChartSymbol] = useState<string>("");
 
   const allRows = useMemo(() => buildRows(prices), [prices]);

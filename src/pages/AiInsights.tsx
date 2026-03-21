@@ -3,7 +3,7 @@ import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
 import type { PriceData, MarketInfo } from "@/lib/types";
 import {
   getCategory,
-  formatNumber,
+
   formatFundingRate,
   annualizedFunding,
 } from "@/lib/types";

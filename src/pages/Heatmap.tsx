@@ -489,7 +489,7 @@ function CategoryTreemap({
 // ---------------------------------------------------------------------------
 
 export default function Heatmap() {
-  const { prices, connected } = usePacificaPrices();
+  const { prices } = usePacificaPrices();
   const [sizeMetric, setSizeMetric] = useState<SizeMetric>("volume");
   const [colorMetric, setColorMetric] = useState<ColorMetric>("change");
   const [tooltip, setTooltip] = useState<TooltipInfo | null>(null);

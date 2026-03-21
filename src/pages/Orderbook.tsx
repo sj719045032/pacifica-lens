@@ -479,7 +479,7 @@ function Spinner() {
 /* ------------------------------------------------------------------ */
 
 export default function Orderbook() {
-  const { prices, connected } = usePacificaPrices();
+  const { prices } = usePacificaPrices();
   const [searchParams] = useSearchParams();
   const urlSymbol = searchParams.get("symbol");
 
