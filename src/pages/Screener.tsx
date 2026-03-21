@@ -301,7 +301,10 @@ export default function Screener() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-fg">Market Screener</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-fg">Market Screener</h1>
+          <p className="text-xs text-muted">Filter across all Pacifica perpetual markets using live WebSocket data</p>
+        </div>
         <div className="flex items-center gap-2">
           <span
             className={`inline-block w-2 h-2 rounded-full ${

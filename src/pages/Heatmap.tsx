@@ -634,7 +634,10 @@ export default function Heatmap() {
       {/* Header */}
       <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-fg">Market Heatmap</h1>
+          <div>
+            <h1 className="text-xl font-bold text-fg">Market Heatmap</h1>
+            <p className="text-xs text-muted">Visualizing real-time data from Pacifica's 63+ perpetual markets</p>
+          </div>
           <div className="flex items-center gap-1.5">
             <span
               className={`w-1.5 h-1.5 rounded-full ${

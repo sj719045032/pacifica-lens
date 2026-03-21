@@ -10,12 +10,8 @@ const NAV = [
 export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-full w-16 bg-card border-r border-border flex flex-col items-center py-4 z-50">
-      <NavLink to="/" className="mb-8 text-accent font-bold">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="4" />
-          <line x1="12" y1="2" x2="12" y2="6" /><line x1="12" y1="18" x2="12" y2="22" />
-          <line x1="2" y1="12" x2="6" y2="12" /><line x1="18" y1="12" x2="22" y2="12" />
-        </svg>
+      <NavLink to="/" className="mb-8 text-accent font-bold font-mono text-lg">
+        PL
       </NavLink>
       <nav className="flex flex-col gap-2">
         {NAV.map((n) => (

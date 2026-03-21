@@ -114,6 +114,9 @@ export default function Funding() {
 
   return (
     <div className="space-y-6">
+      {/* Pacifica data source banner */}
+      <p className="text-xs text-muted">Data sourced from Pacifica WebSocket API in real-time</p>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
