@@ -241,12 +241,12 @@ function TraderDetail({
                     <td className="px-4 py-2.5">
                       <span
                         className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                          pos.side.toLowerCase() === "long"
+                          pos.side.toLowerCase() === "bid"
                             ? "bg-[#22c55e]/10 text-up"
                             : "bg-[#ef4444]/10 text-down"
                         }`}
                       >
-                        {pos.side.toUpperCase()}
+                        {pos.side.toLowerCase() === "bid" ? "LONG" : "SHORT"}
                       </span>
                     </td>
                     <td className="px-4 py-2.5 text-right font-mono text-fg">
@@ -400,7 +400,7 @@ export default function Whales() {
         const json = await res.json();
         if (cancelled) return;
         if (json.success && Array.isArray(json.data)) {
-          const parsed: Trader[] = json.data.slice(0, 20).map((t: Record<string, unknown>) => ({
+          const all: LeaderboardEntry[] = json.data.map((t: Record<string, unknown>) => ({
             address: String(t.address ?? ""),
             username: t.username ? String(t.username) : null,
             pnl_1d: Number(t.pnl_1d) || 0,
@@ -414,7 +414,8 @@ export default function Whales() {
             volume_30d: Number(t.volume_30d) || 0,
             volume_all_time: Number(t.volume_all_time) || 0,
           }));
-          setLeaderboard(parsed);
+          all.sort((a, b) => b.pnl_all_time - a.pnl_all_time);
+          setLeaderboard(all.slice(0, 20));
         } else {
           setLbError("Unexpected API response");
         }
@@ -516,7 +517,7 @@ export default function Whales() {
     for (const positions of Object.values(allPositions)) {
       for (const pos of positions) {
         if (!map[pos.symbol]) map[pos.symbol] = { longs: 0, shorts: 0 };
-        if (pos.side.toLowerCase() === "long") {
+        if (pos.side.toLowerCase() === "bid") {
           map[pos.symbol].longs += 1;
         } else {
           map[pos.symbol].shorts += 1;
