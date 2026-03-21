@@ -12,6 +12,14 @@
   --color-warn: #eab308;
   --color-muted: #6b7280;
   --font-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  /* Custom easing curves (Emil Kowalski) */
+  --ease-out-expo: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-expo: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -22,3 +30,323 @@ body {
 ::-webkit-scrollbar-track { background: var(--color-bg); }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
+
+/* Glow effects — layered shadows for depth */
+.glow-green {
+  box-shadow:
+    0 0 8px rgba(34, 197, 94, 0.2),
+    0 0 24px rgba(34, 197, 94, 0.1);
+}
+.glow-red {
+  box-shadow:
+    0 0 8px rgba(239, 68, 68, 0.2),
+    0 0 24px rgba(239, 68, 68, 0.1);
+}
+.glow-accent {
+  box-shadow:
+    0 0 8px rgba(59, 130, 246, 0.25),
+    0 0 24px rgba(59, 130, 246, 0.1);
+}
+
+/* Stat card gradient backgrounds */
+.stat-card {
+  background: linear-gradient(135deg, #141820 0%, #1a1f2a 100%);
+  border: 1px solid #1e2430;
+  border-radius: 16px;
+  padding: 20px;
+  transition-property: transform, border-color, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+.stat-card:hover {
+  border-color: #2a3040;
+  transform: translateY(-2px);
+}
+.stat-card:not(.glow-green):not(.glow-red):not(.glow-accent):hover {
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.06),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.stat-card.glow-green:hover {
+  box-shadow:
+    0 0 12px rgba(34, 197, 94, 0.3),
+    0 0 32px rgba(34, 197, 94, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.stat-card.glow-red:hover {
+  box-shadow:
+    0 0 12px rgba(239, 68, 68, 0.3),
+    0 0 32px rgba(239, 68, 68, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.stat-card.glow-accent:hover {
+  box-shadow:
+    0 0 12px rgba(59, 130, 246, 0.35),
+    0 0 32px rgba(59, 130, 246, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.stat-card:active {
+  transform: scale(0.98);
+}
+
+/* Table row hover animation */
+.table-row-hover {
+  transition: background-color 0.15s ease;
+}
+
+/* Animated number flash — applied via JS when a value changes */
+@keyframes flash-up {
+  0%   { background-color: rgba(34, 197, 94, 0.18); }
+  100% { background-color: transparent; }
+}
+@keyframes flash-down {
+  0%   { background-color: rgba(239, 68, 68, 0.18); }
+  100% { background-color: transparent; }
+}
+.flash-up { animation: flash-up 600ms ease-out; }
+.flash-down { animation: flash-down 600ms ease-out; }
+
+/* Expand/collapse animation for detail rows */
+.row-expand-enter {
+  animation: rowExpand 300ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes rowExpand {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    max-height: 600px;
+    transform: translateY(0);
+  }
+}
+
+/* Skeleton shimmer for loading states */
+.skeleton {
+  background: linear-gradient(90deg, #141820 25%, #1a1f2a 50%, #141820 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Live data pulse ring — grows and fades outward */
+.live-pulse {
+  position: relative;
+}
+.live-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  animation: livePulseRing 2s ease-out infinite;
+}
+@keyframes livePulseRing {
+  0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  70%  { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* New trade row entrance */
+.trade-enter {
+  animation: tradeSlideIn 250ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes tradeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Pulse animation for live indicators */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Shadow-border for cards (surfaces.md: shadows over borders) */
+.shadow-card {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.shadow-card-hover {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.5),
+    0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Number highlight animation */
+@keyframes flash-green {
+  0% { color: #22c55e; }
+  100% { color: inherit; }
+}
+@keyframes flash-red {
+  0% { color: #ef4444; }
+  100% { color: inherit; }
+}
+
+/* Smooth page transitions — split & stagger entrance */
+.page-enter {
+  animation: pageEnter 400ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Stagger items inside a page-enter container */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(12px);
+  filter: blur(4px);
+  animation: staggerIn 400ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+.stagger-item:nth-child(1) { animation-delay: 0ms; }
+.stagger-item:nth-child(2) { animation-delay: 60ms; }
+.stagger-item:nth-child(3) { animation-delay: 120ms; }
+.stagger-item:nth-child(4) { animation-delay: 180ms; }
+.stagger-item:nth-child(5) { animation-delay: 240ms; }
+.stagger-item:nth-child(6) { animation-delay: 300ms; }
+.stagger-item:nth-child(7) { animation-delay: 360ms; }
+.stagger-item:nth-child(8) { animation-delay: 420ms; }
+.stagger-item:nth-child(9) { animation-delay: 480ms; }
+.stagger-item:nth-child(10) { animation-delay: 540ms; }
+
+@keyframes staggerIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Card entrance — for insight cards, table rows appearing */
+.card-enter {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: cardSlide 300ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+@keyframes cardSlide {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Interactive press feedback for buttons/pills */
+@media (hover: hover) and (pointer: fine) {
+  .press-scale {
+    transition-property: transform, background-color, color, border-color, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .press-scale:active {
+    transform: scale(0.96);
+  }
+}
+
+/* Sidebar nav link polish */
+@media (hover: hover) and (pointer: fine) {
+  .nav-link {
+    transition-property: transform, background-color, color, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .nav-link:active {
+    transform: scale(0.92);
+  }
+  .nav-link:hover {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+}
+
+/* Sidebar active indicator bar — slides to the active link */
+.nav-active-bar {
+  position: absolute;
+  right: 0;
+  width: 3px;
+  height: 24px;
+  border-radius: 3px 0 0 3px;
+  background: var(--color-accent);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+  transition: top 250ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Universal focus-visible ring for accessibility */
+:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-bg),
+    0 0 0 4px var(--color-accent);
+}
+select:focus-visible,
+input:focus-visible,
+button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-bg),
+    0 0 0 4px var(--color-accent);
+}
+
+/* Scrollbar fade-in on container hover */
+.scroll-fade::-webkit-scrollbar-thumb {
+  background: transparent;
+  transition: background 0.3s;
+}
+.scroll-fade:hover::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+}
+.scroll-fade:hover::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* Data refresh flash overlay for cards that auto-update */
+.refresh-flash {
+  animation: refreshFlash 400ms ease-out;
+}
+@keyframes refreshFlash {
+  0%   { box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.3); }
+  100% { box-shadow: inset 0 0 0 1px transparent; }
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

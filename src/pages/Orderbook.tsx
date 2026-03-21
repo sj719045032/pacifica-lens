@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
 import { type MarketInfo, formatPrice, formatNumber } from "@/lib/types";
 
@@ -75,11 +76,13 @@ function MetricCard({
   value,
   sub,
   color,
+  className,
 }: {
   label: string;
   value: string;
   sub?: string;
   color?: "up" | "down" | "accent" | "fg";
+  className?: string;
 }) {
   const colorCls =
     color === "up"
@@ -91,7 +94,7 @@ function MetricCard({
           : "text-fg";
 
   return (
-    <div className="bg-card rounded-xl border border-border p-4 flex flex-col gap-1">
+    <div className={`stat-card flex flex-col gap-1 ${className ?? ""}`}>
       <span className="text-[11px] font-medium text-muted uppercase tracking-wider">
         {label}
       </span>
@@ -111,16 +114,18 @@ function MetricCard({
 
 function ImbalanceBar({ ratio }: { ratio: number }) {
   const pct = Math.max(0, Math.min(100, ratio * 100));
+  const bidDominant = pct > 60;
+  const askDominant = pct < 40;
   return (
-    <div className="bg-card rounded-xl border border-border p-4 flex flex-col gap-2">
+    <div className={`stat-card flex flex-col gap-2 ${bidDominant ? "" : askDominant ? "" : ""}`}>
       <span className="text-[11px] font-medium text-muted uppercase tracking-wider">
         Bid/Ask Imbalance
       </span>
       <div className="flex items-center gap-3">
-        <span className="text-up font-mono text-sm font-bold w-14 text-right">
+        <span className="text-up font-mono text-base font-bold w-16 text-right">
           {pct.toFixed(1)}%
         </span>
-        <div className="flex-1 h-3 rounded-full bg-down/20 overflow-hidden relative">
+        <div className="flex-1 h-8 rounded-full bg-down/20 overflow-hidden relative">
           <div
             className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
             style={{
@@ -132,7 +137,7 @@ function ImbalanceBar({ ratio }: { ratio: number }) {
           {/* Center tick */}
           <div className="absolute inset-y-0 left-1/2 w-px bg-fg/30" />
         </div>
-        <span className="text-down font-mono text-sm font-bold w-14">
+        <span className="text-down font-mono text-base font-bold w-16">
           {(100 - pct).toFixed(1)}%
         </span>
       </div>
@@ -306,15 +311,15 @@ function OrderbookTable({
             <span className="text-right">Size</span>
             <span className="text-right">Bid Price</span>
           </div>
-          <div className="max-h-[500px] overflow-y-auto">
+          <div className="max-h-[500px] overflow-y-auto scroll-fade">
             {bids.slice(0, displayCount).map((lvl, i) => {
               const sizePct = (lvl.size / maxBidSize) * 100;
               const totalPct = (lvl.total / maxBidTotal) * 100;
               return (
                 <div
                   key={`bid-row-${i}`}
-                  className={`grid grid-cols-4 gap-0 px-3 py-1.5 text-xs font-mono relative group hover:bg-up/5 transition-colors ${
-                    lvl.isWall ? "ring-1 ring-inset ring-up/20" : ""
+                  className={`grid grid-cols-4 gap-0 px-3 py-1.5 text-xs font-mono relative group hover:bg-up/5 transition-[background-color] duration-150 ${
+                    lvl.isWall ? "ring-1 ring-inset ring-up/30" : ""
                   }`}
                 >
                   {/* Size fill bar (from right) */}
@@ -323,7 +328,7 @@ function OrderbookTable({
                     style={{
                       width: `${sizePct}%`,
                       background:
-                        "linear-gradient(270deg, rgba(34,197,94,0.12) 0%, rgba(34,197,94,0.02) 100%)",
+                        "linear-gradient(270deg, rgba(34,197,94,0.35) 0%, rgba(34,197,94,0.08) 100%)",
                     }}
                   />
                   {/* Total fill bar (subtle underlay) */}
@@ -331,7 +336,7 @@ function OrderbookTable({
                     className="absolute right-0 top-0 bottom-0 transition-all duration-300"
                     style={{
                       width: `${totalPct}%`,
-                      background: "rgba(34,197,94,0.04)",
+                      background: "rgba(34,197,94,0.12)",
                     }}
                   />
                   <span className="relative z-10 text-right text-muted">
@@ -370,15 +375,15 @@ function OrderbookTable({
             <span className="text-right">Total</span>
             <span className="text-right">Orders</span>
           </div>
-          <div className="max-h-[500px] overflow-y-auto">
+          <div className="max-h-[500px] overflow-y-auto scroll-fade">
             {asks.slice(0, displayCount).map((lvl, i) => {
               const sizePct = (lvl.size / maxAskSize) * 100;
               const totalPct = (lvl.total / maxAskTotal) * 100;
               return (
                 <div
                   key={`ask-row-${i}`}
-                  className={`grid grid-cols-4 gap-0 px-3 py-1.5 text-xs font-mono relative group hover:bg-down/5 transition-colors ${
-                    lvl.isWall ? "ring-1 ring-inset ring-down/20" : ""
+                  className={`grid grid-cols-4 gap-0 px-3 py-1.5 text-xs font-mono relative group hover:bg-down/5 transition-[background-color] duration-150 ${
+                    lvl.isWall ? "ring-1 ring-inset ring-down/30" : ""
                   }`}
                 >
                   {/* Size fill bar (from left) */}
@@ -387,7 +392,7 @@ function OrderbookTable({
                     style={{
                       width: `${sizePct}%`,
                       background:
-                        "linear-gradient(90deg, rgba(239,68,68,0.12) 0%, rgba(239,68,68,0.02) 100%)",
+                        "linear-gradient(90deg, rgba(239,68,68,0.35) 0%, rgba(239,68,68,0.08) 100%)",
                     }}
                   />
                   {/* Total fill bar */}
@@ -395,7 +400,7 @@ function OrderbookTable({
                     className="absolute left-0 top-0 bottom-0 transition-all duration-300"
                     style={{
                       width: `${totalPct}%`,
-                      background: "rgba(239,68,68,0.04)",
+                      background: "rgba(239,68,68,0.12)",
                     }}
                   />
                   <span className="relative z-10 text-down font-semibold">
@@ -436,10 +441,34 @@ function OrderbookTable({
 
 function Spinner() {
   return (
-    <div className="flex items-center justify-center h-64">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-        <span className="text-muted text-sm">Loading orderbook...</span>
+    <div className="space-y-4">
+      {/* Metric cards skeleton */}
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="stat-card">
+            <div className="skeleton h-3 w-20 mb-2" />
+            <div className="skeleton h-5 w-24 mb-1" />
+            <div className="skeleton h-2 w-16" />
+          </div>
+        ))}
+      </div>
+      {/* Depth chart skeleton */}
+      <div className="bg-card rounded-xl border border-border p-4">
+        <div className="skeleton h-3 w-24 mb-4" />
+        <div className="skeleton h-48 w-full rounded-lg" />
+      </div>
+      {/* Orderbook table skeleton */}
+      <div className="bg-card rounded-xl border border-border p-4">
+        <div className="skeleton h-3 w-20 mb-4" />
+        <div className="grid grid-cols-2 gap-4">
+          {[0, 1].map((side) => (
+            <div key={side} className="space-y-2">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div key={i} className="skeleton h-5 w-full" />
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -451,9 +480,11 @@ function Spinner() {
 
 export default function Orderbook() {
   const { prices, connected } = usePacificaPrices();
+  const [searchParams] = useSearchParams();
+  const urlSymbol = searchParams.get("symbol");
 
   const [symbols, setSymbols] = useState<string[]>([]);
-  const [symbol, setSymbol] = useState("BTC");
+  const [symbol, setSymbol] = useState(urlSymbol || "BTC");
   const [bookRaw, setBookRaw] = useState<BookData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -615,64 +646,45 @@ export default function Orderbook() {
     : 0;
 
   return (
-    <div className="space-y-5">
-      {/* Header */}
+    <div className="space-y-5 page-enter">
+      {/* Controls */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-fg">Orderbook Depth</h1>
-            <p className="text-xs text-muted">
-              Live Level-2 orderbook data with depth visualization
-            </p>
-          </div>
-
+        <div className="flex items-center gap-3">
           {/* Symbol selector */}
-          <div className="flex items-center gap-2">
-            <select
-              value={symbol}
-              onChange={(e) => setSymbol(e.target.value)}
-              className="bg-card border border-border rounded-lg px-3 py-2 text-sm font-semibold text-fg outline-none focus:border-accent transition-colors cursor-pointer appearance-none min-w-[120px]"
-            >
-              {symbols.length > 0
-                ? symbols.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))
-                : /* Fallback while loading info */
-                  ["BTC", "ETH", "SOL"].map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-            </select>
-            <span className="text-[10px] text-muted uppercase tracking-wider">
-              Perp
-            </span>
-          </div>
+          <select
+            value={symbol}
+            onChange={(e) => setSymbol(e.target.value)}
+            className="bg-card border border-border rounded-lg px-3 py-2 text-sm font-semibold text-fg outline-none focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] transition-[border-color,box-shadow] duration-200 cursor-pointer appearance-none min-w-[120px]"
+          >
+            {symbols.length > 0
+              ? symbols.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))
+              : /* Fallback while loading info */
+                ["BTC", "ETH", "SOL"].map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+          </select>
+          <span className="text-[10px] text-muted uppercase tracking-wider">
+            Perp
+          </span>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Live WS indicator */}
-          <div className="flex items-center gap-1.5">
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                connected ? "bg-up animate-pulse" : "bg-down"
-              }`}
-            />
-            <span className="text-xs text-muted">
-              {connected ? "WS Live" : "Disconnected"}
-            </span>
-          </div>
-          <div className="w-px h-4 bg-border" />
-          {/* Last refresh */}
-          <span className="text-xs text-muted font-mono">
+          {/* Last refresh — pulsing countdown */}
+          <span className={`text-xs font-mono transition-colors duration-300 ${
+            secAgo <= 1 ? "text-accent" : "text-muted"
+          }`}>
             {secAgo}s ago
           </span>
           <div className="w-px h-4 bg-border" />
           {/* Refresh dot */}
           <div className="relative flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-accent live-pulse" />
             <span className="text-xs text-muted">
               {REFRESH_MS / 1000}s refresh
             </span>
@@ -697,36 +709,42 @@ export default function Orderbook() {
               value={`$${metrics.spread.toFixed(2)}`}
               sub={`${metrics.spreadBps} bps`}
               color="accent"
+              className="relative overflow-hidden"
             />
             <MetricCard
               label="Total Bid Depth"
               value={`$${formatNumber(metrics.totalBidDepth)}`}
               sub={`${bids.length} levels`}
               color="up"
+              className="border-l-2 border-l-[#22c55e]"
             />
             <MetricCard
               label="Total Ask Depth"
               value={`$${formatNumber(metrics.totalAskDepth)}`}
               sub={`${asks.length} levels`}
               color="down"
+              className="border-l-2 border-l-[#ef4444]"
             />
             <MetricCard
               label="Largest Bid Wall"
               value={`$${formatPrice(metrics.largestBid.price)}`}
               sub={`${metrics.largestBid.size.toFixed(4)} @ $${fmtCompact(metrics.largestBid.value)}`}
               color="up"
+              className=""
             />
             <MetricCard
               label="Largest Ask Wall"
               value={`$${formatPrice(metrics.largestAsk.price)}`}
               sub={`${metrics.largestAsk.size.toFixed(4)} @ $${fmtCompact(metrics.largestAsk.value)}`}
               color="down"
+              className=""
             />
             <MetricCard
               label="Mid Price"
               value={`$${formatPrice(midPrice)}`}
               sub={currentPrice ? `Mark: $${formatPrice(parseFloat(currentPrice.mark))}` : undefined}
               color="fg"
+              className=""
             />
           </div>
 

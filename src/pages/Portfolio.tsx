@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePrivy } from "@privy-io/react-auth";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
 import { formatPrice, formatNumber } from "@/lib/types";
 import type { PriceData } from "@/lib/types";
@@ -156,10 +157,13 @@ async function fetchFundingHistory(address: string): Promise<FundingHistory[]> {
 
 export default function Portfolio() {
   const { prices, connected } = usePacificaPrices();
+  const { user, authenticated } = usePrivy();
+  const walletAddress = authenticated ? user?.wallet?.address ?? null : null;
 
   /* -- Input state -- */
   const [inputAddr, setInputAddr] = useState("");
   const [activeAddr, setActiveAddr] = useState("");
+  const [manualEntry, setManualEntry] = useState(false);
 
   /* -- Data state -- */
   const [account, setAccount] = useState<AccountData | null>(null);
@@ -193,7 +197,7 @@ export default function Portfolio() {
     ]);
 
     if (!acct) {
-      setError("Account not found or API error. Please verify the address.");
+      setError("This address has no trading history on Pacifica. Only accounts that have traded on Pacifica will show data. Try a whale address below.");
       setLoading(false);
       return;
     }
@@ -299,27 +303,7 @@ export default function Portfolio() {
 
   /* ---- Render ---- */
   return (
-    <div className="space-y-6">
-      {/* ---------- Header ---------- */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-fg">Portfolio Analyzer</h1>
-          <p className="text-xs text-muted mt-1">
-            Analyze any Pacifica account -- positions, trade history, and funding
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span
-            className={`inline-block w-2 h-2 rounded-full ${
-              connected ? "bg-up animate-pulse" : "bg-down"
-            }`}
-          />
-          <span className="text-xs text-muted">
-            {connected ? "Live" : "Disconnected"}
-          </span>
-        </div>
-      </div>
-
+    <div className="space-y-6 page-enter">
       {/* ---------- Address Input ---------- */}
       <div className="bg-card rounded-xl border border-border p-5 space-y-3">
         <div className="flex gap-3">
@@ -327,7 +311,10 @@ export default function Portfolio() {
             type="text"
             placeholder="Enter Solana address..."
             value={inputAddr}
-            onChange={(e) => setInputAddr(e.target.value)}
+            onChange={(e) => {
+              setInputAddr(e.target.value);
+              setManualEntry(true);
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") analyze(inputAddr);
             }}
@@ -354,6 +341,27 @@ export default function Portfolio() {
           ))}
         </div>
       </div>
+
+      {/* ---------- Connected Wallet Banner ---------- */}
+      {walletAddress && !manualEntry && !activeAddr && (
+        <div className="bg-accent/10 border border-accent/30 rounded-xl px-5 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
+            <span className="text-sm text-fg">
+              Wallet connected:{" "}
+              <span className="font-mono text-accent">
+                {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+              </span>
+            </span>
+          </div>
+          <button
+            onClick={() => analyze(walletAddress)}
+            className="px-4 py-1.5 bg-accent text-white text-sm font-semibold rounded-lg hover:bg-accent/90 transition-colors"
+          >
+            Analyze My Portfolio
+          </button>
+        </div>
+      )}
 
       {/* ---------- Error ---------- */}
       {error && (
@@ -433,11 +441,12 @@ function AccountOverview({
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        <StatCard label="Total Equity" value={formatUsd(equity)} />
-        <StatCard label="Available Balance" value={formatUsd(available)} />
-        <StatCard label="Margin Used" value={formatUsd(marginUsed)} />
+        <StatCard label="Total Equity" value={formatUsd(equity)} className="" />
+        <StatCard label="Available Balance" value={formatUsd(available)} className="" />
+        <StatCard label="Margin Used" value={formatUsd(marginUsed)} className={marginPct > 80 ? "" : ""} />
         <StatCard
           label="Margin Used %"
+          className={marginPct > 80 ? "" : marginPct > 50 ? "" : ""}
           value={
             <span className={marginPct > 80 ? "text-down" : marginPct > 50 ? "text-warn" : "text-fg"}>
               {marginPct.toFixed(1)}%
@@ -446,6 +455,7 @@ function AccountOverview({
         />
         <StatCard
           label="Unrealized PnL"
+          className={totalUnrealizedPnl >= 0 ? "" : ""}
           value={
             <span className={totalUnrealizedPnl >= 0 ? "text-up" : "text-down"}>
               {formatUsd(totalUnrealizedPnl)}
@@ -455,13 +465,16 @@ function AccountOverview({
         <StatCard
           label="Positions"
           value={String(account.positions_count)}
+          className=""
         />
         <StatCard
           label="Open Orders"
           value={String(account.orders_count)}
+          className=""
         />
         <StatCard
           label="Fee Tier"
+          className=""
           value={
             <span className="text-accent">
               {feeTierLabel(account.fee_level)}
@@ -641,6 +654,7 @@ function TradeHistory({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
             label="Total Realized PnL"
+            className={stats.totalPnl >= 0 ? "" : ""}
             value={
               <span className={stats.totalPnl >= 0 ? "text-up" : "text-down"}>
                 {formatUsd(stats.totalPnl)}
@@ -649,6 +663,7 @@ function TradeHistory({
           />
           <StatCard
             label="Win Rate"
+            className={stats.winRate >= 50 ? "" : ""}
             value={
               <span className={stats.winRate >= 50 ? "text-up" : "text-down"}>
                 {stats.winRate.toFixed(1)}%
@@ -657,12 +672,14 @@ function TradeHistory({
           />
           <StatCard
             label="Avg Win"
+            className=""
             value={
               <span className="text-up">{formatUsd(stats.avgWin)}</span>
             }
           />
           <StatCard
             label="Avg Loss"
+            className=""
             value={
               <span className="text-down">{formatUsd(stats.avgLoss)}</span>
             }
@@ -786,14 +803,17 @@ function FundingHistorySection({
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <StatCard
             label="Total Received"
+            className=""
             value={<span className="text-up">{formatUsd(stats.received)}</span>}
           />
           <StatCard
             label="Total Paid"
+            className=""
             value={<span className="text-down">{formatUsd(stats.paid)}</span>}
           />
           <StatCard
             label="Net Funding"
+            className={stats.net >= 0 ? "" : ""}
             value={
               <span className={stats.net >= 0 ? "text-up" : "text-down"}>
                 {formatUsd(stats.net)}
@@ -888,12 +908,14 @@ function FundingHistorySection({
 function StatCard({
   label,
   value,
+  className,
 }: {
   label: string;
   value: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="bg-card border border-border rounded-xl px-4 py-3">
+    <div className={`stat-card ${className ?? ""}`}>
       <p className="text-xs text-muted mb-1">{label}</p>
       <p className="text-lg font-semibold font-mono text-fg">{value}</p>
     </div>

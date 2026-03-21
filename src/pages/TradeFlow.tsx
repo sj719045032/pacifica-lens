@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
 import type { MarketInfo } from "@/lib/types";
 import { formatNumber, formatPrice } from "@/lib/types";
@@ -139,14 +140,16 @@ function FlowCard({
   value,
   sub,
   colorClass,
+  className,
 }: {
   label: string;
   value: React.ReactNode;
   sub?: string;
   colorClass?: string;
+  className?: string;
 }) {
   return (
-    <div className="bg-card border border-border rounded-xl px-4 py-3 min-w-[140px]">
+    <div className={`stat-card min-w-[140px] ${className ?? ""}`}>
       <p className="text-[11px] text-muted uppercase tracking-wider mb-1">{label}</p>
       <p className={`text-lg font-bold font-mono ${colorClass ?? "text-fg"}`}>{value}</p>
       {sub && <p className="text-[10px] text-muted mt-0.5">{sub}</p>}
@@ -156,13 +159,13 @@ function FlowCard({
 
 function PressureBar({ buyPct, sellPct }: { buyPct: number; sellPct: number }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-4">
+    <div className="stat-card">
       <div className="flex items-center justify-between text-xs text-muted mb-2">
         <span className="text-up font-mono font-medium">BUY {buyPct.toFixed(1)}%</span>
         <span className="text-[11px] uppercase tracking-wider">Taker Pressure</span>
         <span className="text-down font-mono font-medium">SELL {sellPct.toFixed(1)}%</span>
       </div>
-      <div className="flex h-3 rounded-full overflow-hidden bg-border">
+      <div className="flex h-8 rounded-full overflow-hidden bg-border">
         <div
           className="bg-[#22c55e] transition-all duration-500"
           style={{ width: `${buyPct}%` }}
@@ -176,7 +179,7 @@ function PressureBar({ buyPct, sellPct }: { buyPct: number; sellPct: number }) {
   );
 }
 
-function TradeRow({ trade }: { trade: Trade }) {
+function TradeRow({ trade, isNew }: { trade: Trade; isNew?: boolean }) {
   const { direction, action } = sideLabel(trade.side);
   const isLong = direction === "LONG";
   const isLiquidation = trade.cause === "liquidation";
@@ -185,13 +188,13 @@ function TradeRow({ trade }: { trade: Trade }) {
 
   return (
     <div
-      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-card-hover ${
+      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-[background-color] duration-150 hover:bg-card-hover ${isNew ? "trade-enter" : ""} ${
         isWhale
           ? "border border-warn/40 bg-warn/5"
           : isLarge
-            ? "border border-border/80 bg-card-hover/40"
+            ? "border border-border/80 bg-card-hover/40 border-l-2 border-l-[#eab308]"
             : ""
-      }`}
+      } ${isLiquidation ? "bg-[#ef4444]/5 animate-pulse" : ""}`}
     >
       {/* Time */}
       <span className="text-[11px] font-mono text-muted w-[60px] shrink-0">
@@ -250,7 +253,7 @@ function LargeTradeAlert({ trade, symbol }: { trade: Trade; symbol: string }) {
 
   return (
     <div
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 ${
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 card-enter ${
         isLiquidation
           ? "border-warn/50 bg-warn/5"
           : isLong
@@ -306,9 +309,11 @@ function LargeTradeAlert({ trade, symbol }: { trade: Trade; symbol: string }) {
 
 export default function TradeFlow() {
   const { prices, connected } = usePacificaPrices();
+  const [searchParams] = useSearchParams();
+  const urlSymbol = searchParams.get("symbol");
 
   const [symbols, setSymbols] = useState<string[]>([]);
-  const [selectedSymbol, setSelectedSymbol] = useState("BTC");
+  const [selectedSymbol, setSelectedSymbol] = useState(urlSymbol || "BTC");
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -389,6 +394,16 @@ export default function TradeFlow() {
     [trades],
   );
 
+  /* ---- Track newest trade for entrance animation ---- */
+  const prevTradeCountRef = useRef(0);
+  const newTradeCount = trades.length > prevTradeCountRef.current
+    ? trades.length - prevTradeCountRef.current
+    : 0;
+  // Update after render
+  useEffect(() => {
+    prevTradeCountRef.current = trades.length;
+  }, [trades.length]);
+
   /* ---- Current mark price from WS for context ---- */
   const currentPrice = prices[selectedSymbol]
     ? parseFloat(prices[selectedSymbol].mark)
@@ -396,54 +411,34 @@ export default function TradeFlow() {
 
   /* ---- Render ---- */
   return (
-    <div className="space-y-5">
-      {/* ---------- Header ---------- */}
+    <div className="space-y-5 page-enter">
+      {/* ---------- Controls ---------- */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-xl font-semibold text-fg">Trade Flow</h1>
-          <p className="text-muted text-sm mt-0.5">
-            Real-time taker flow analysis
-            {currentPrice !== null && (
-              <span className="ml-2 font-mono text-fg">
-                {selectedSymbol} ${formatPrice(currentPrice)}
-              </span>
-            )}
-          </p>
+        <div className="flex items-center gap-2 text-sm text-muted">
+          {currentPrice !== null && (
+            <span className="font-mono text-fg">
+              {selectedSymbol} ${formatPrice(currentPrice)}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
           {/* Auto-refresh toggle */}
           <button
             onClick={() => setAutoRefresh((p) => !p)}
-            className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors ${
+            className={`press-scale flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-all duration-200 ${
               autoRefresh
-                ? "border-[#22c55e]/30 bg-[#22c55e]/10 text-up"
-                : "border-border bg-card text-muted hover:text-fg"
+                ? "border-[#22c55e]/30 bg-[#22c55e]/10 text-up shadow-[0_0_8px_rgba(34,197,94,0.15)]"
+                : "border-border bg-card text-muted hover:text-fg hover:border-border/80"
             }`}
           >
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                autoRefresh ? "bg-[#22c55e] animate-pulse" : "bg-muted"
+                autoRefresh ? "bg-[#22c55e] live-pulse" : "bg-muted"
               }`}
             />
             {autoRefresh ? "LIVE" : "PAUSED"}
           </button>
-
-          {/* Connection status */}
-          <span
-            className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border ${
-              connected
-                ? "border-[#22c55e]/30 bg-[#22c55e]/10 text-up"
-                : "border-[#ef4444]/30 bg-[#ef4444]/10 text-down"
-            }`}
-          >
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                connected ? "bg-[#22c55e]" : "bg-[#ef4444]"
-              }`}
-            />
-            {connected ? "WS" : "OFF"}
-          </span>
         </div>
       </div>
 
@@ -452,7 +447,7 @@ export default function TradeFlow() {
         <select
           value={selectedSymbol}
           onChange={(e) => setSelectedSymbol(e.target.value)}
-          className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-fg font-mono focus:outline-none focus:border-accent/50 transition-colors cursor-pointer"
+          className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-fg font-mono focus:outline-none focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] transition-[border-color,box-shadow] duration-200 cursor-pointer"
         >
           {symbols.length > 0
             ? symbols.map((s) => (
@@ -486,18 +481,21 @@ export default function TradeFlow() {
           value={`$${formatNumber(flow.buyPressure)}`}
           sub="Taker longs + close shorts"
           colorClass="text-up"
+          className=""
         />
         <FlowCard
           label="Sell Pressure"
           value={`$${formatNumber(flow.sellPressure)}`}
           sub="Taker shorts + close longs"
           colorClass="text-down"
+          className=""
         />
         <FlowCard
           label="Net Flow"
           value={`${flow.netFlow >= 0 ? "+" : ""}$${formatNumber(Math.abs(flow.netFlow))}`}
           sub={flow.netFlow >= 0 ? "Buyers dominant" : "Sellers dominant"}
           colorClass={flow.netFlow >= 0 ? "text-up" : "text-down"}
+          className={flow.netFlow >= 0 ? "" : ""}
         />
         <FlowCard
           label="Open / Close"
@@ -509,12 +507,14 @@ export default function TradeFlow() {
                 : flow.openCloseRatio.toFixed(2) + "x"
           }
           sub={flow.openCloseRatio > 1 ? "OI expanding" : flow.openCloseRatio < 1 ? "OI contracting" : "Balanced"}
+          className=""
         />
         <FlowCard
           label="Liquidations"
           value={String(flow.liquidationCount)}
           sub={flow.liquidationVolume > 0 ? `$${formatNumber(flow.liquidationVolume)} vol` : "None detected"}
           colorClass={flow.liquidationCount > 0 ? "text-warn" : "text-muted"}
+          className={flow.liquidationCount > 0 ? "" : ""}
         />
       </div>
 
@@ -549,10 +549,10 @@ export default function TradeFlow() {
             <h2 className="text-fg font-semibold text-sm">Trade Flow Timeline</h2>
             <span className="text-[10px] text-muted font-mono">Taker fills only</span>
           </div>
-          <div className="overflow-y-auto max-h-[520px] p-2 space-y-0.5">
+          <div className="overflow-y-auto max-h-[520px] p-2 space-y-0.5 scroll-fade">
             {trades.length > 0 ? (
               trades.map((t, i) => (
-                <TradeRow key={`${t.createdAt}-${i}`} trade={t} />
+                <TradeRow key={`${t.createdAt}-${i}`} trade={t} isNew={i < newTradeCount} />
               ))
             ) : (
               <div className="flex items-center justify-center py-16 text-muted text-sm">
@@ -565,7 +565,7 @@ export default function TradeFlow() {
         {/* Aggregate Stats */}
         <div className="space-y-4">
           {/* Opening Flow */}
-          <div className="bg-card border border-border rounded-xl p-4">
+          <div className="stat-card">
             <h3 className="text-[11px] text-muted uppercase tracking-wider mb-3">Opening Flow</h3>
             <p className="text-2xl font-bold font-mono text-fg">
               ${formatNumber(flow.openVolume)}
@@ -590,7 +590,7 @@ export default function TradeFlow() {
           </div>
 
           {/* Closing Flow */}
-          <div className="bg-card border border-border rounded-xl p-4">
+          <div className="stat-card">
             <h3 className="text-[11px] text-muted uppercase tracking-wider mb-3">Closing Flow</h3>
             <p className="text-2xl font-bold font-mono text-fg">
               ${formatNumber(flow.closeVolume)}
@@ -615,7 +615,7 @@ export default function TradeFlow() {
           </div>
 
           {/* Net OI Change */}
-          <div className="bg-card border border-border rounded-xl p-4">
+          <div className="stat-card">
             <h3 className="text-[11px] text-muted uppercase tracking-wider mb-3">Net OI Change</h3>
             {(() => {
               const netOI = flow.openVolume - flow.closeVolume;

@@ -1,55 +1,70 @@
 # Pacifica Lens
 
-**Real-time perpetuals analytics dashboard for Pacifica exchange.**
+Real-time perpetuals analytics dashboard for Pacifica exchange. Built for Pacifica Hackathon 2026 - Track 2: Analytics & Data.
 
-Pacifica 2026 Hackathon | Track 2: Analytics & Data
+## Live Demo
 
----
+https://pacifica-lens-v2.vercel.app
 
-## Overview
-
-Pacifica Lens is a comprehensive analytics dashboard purpose-built for the Pacifica perpetual futures exchange. It provides traders and analysts with real-time visibility into market dynamics across 63+ perpetual markets spanning crypto, stocks, commodities, forex, and indices.
-
-- Live streaming data via Pacifica WebSocket API -- no mocked data
-- Built with React + TypeScript + Vite + TailwindCSS
-- Four distinct analytical views for different trading workflows
-
-## Features
+## Features (9 pages)
 
 ### Market Overview
 
-A high-level snapshot of the entire Pacifica exchange. Displays real-time aggregate statistics including total trading volume, open interest, and top gainers/losers. A sortable and filterable market table lets users drill into individual markets, with category tags and search for quick navigation.
+Real-time stats (volume, OI, gainers/losers), sortable market table with category filters (crypto, stocks, commodities, forex), search.
 
 ### Funding Rate Analysis
 
-Surfaces long/short arbitrage opportunities by ranking all markets by funding rate intensity. Each market displays visual intensity bars and annualized rate calculations, making it straightforward to identify mispriced funding across the exchange.
+Long/Short arbitrage opportunities, all markets ranked by funding intensity with visual bars, annualized rates, live SVG funding rate trend chart.
 
 ### Market Heatmap
 
-A treemap visualization where tile size represents volume or open interest, and color encodes 24-hour price change or funding rate. Markets are grouped by category with hover tooltips for detailed metrics -- useful for spotting outliers at a glance.
+Treemap visualization sized by volume or OI, colored by 24h change or funding rate, category grouping, hover tooltips.
 
 ### Market Screener
 
-Five preset filters (High Funding, Negative Funding, Most Volatile, Top Volume, New Markets) provide one-click access to common screens. Custom filters support category selection, funding rate ranges, volume thresholds, and leverage parameters. Results are fully sortable.
+5 preset filters (High Funding, Negative Funding, Most Volatile, Top Volume, New Markets), custom filter panel (category, funding range, volume, leverage), sortable results.
 
-## Pacifica Integration
+### Whale Tracker
+
+Top 20 traders by PnL from leaderboard API, click to expand real-time positions with unrealized PnL, aggregate whale long/short sentiment per symbol.
+
+### Orderbook Depth
+
+Live Level-2 orderbook data, bid/ask depth chart, imbalance indicator, order wall detection, spread and depth metrics, 2-second auto-refresh.
+
+### Trade Flow
+
+Real-time taker flow analysis, buy/sell pressure metrics, open vs close ratio, liquidation detection, large trade alerts (>$50K), net OI change tracking.
+
+### Portfolio Analyzer
+
+Enter any Solana address to view: account equity and margin, current positions with live unrealized PnL, trade history with win rate, funding payment history. Supports Privy wallet connection for one-click analysis.
+
+### AI Market Intelligence
+
+Automated rule-based analysis engine generating natural language insights from 12 signal types: funding anomalies, orderbook imbalance, whale activity, cross-asset divergence, volume surges, funding arbitrage opportunities, and more. Auto-refreshes every 30 seconds.
+
+## Pacifica API Integration
 
 All data is sourced live from Pacifica infrastructure:
 
-| Endpoint | Purpose |
-|---|---|
-| `GET /api/v1/info` | Market metadata and configuration |
-| `wss://ws.pacifica.fi/ws` | Real-time prices, funding rates, open interest, and volume |
+- **REST:** /info, /info/prices, /leaderboard, /book, /trades, /positions, /account, /positions/history, /funding/history, /orders/history
+- **WebSocket:** prices channel (real-time), trades channel
+- **Total:** 12+ API endpoints deeply integrated
 
 No historical databases or third-party data providers are used. The dashboard connects directly to Pacifica APIs for a fully real-time experience.
 
+## Sponsor Integration
+
+- Privy (@privy-io/react-auth) for Solana wallet connection
+
 ## Tech Stack
 
-- **React 19** + **TypeScript** -- UI framework and type safety
-- **Vite 8** -- Build tooling and development server
-- **TailwindCSS 4** -- Utility-first styling
-- **React Router** -- Client-side routing
-- **Lightweight Charts** -- Available for future candlestick chart views
+- React 19, TypeScript, Vite 8, TailwindCSS 4
+- React Router for SPA navigation
+- Privy for wallet auth
+- Pure CSS/SVG charts (no chart library dependency)
+- Deployed on Vercel
 
 ## Getting Started
 
@@ -58,15 +73,20 @@ npm install
 npm run dev
 ```
 
-The development server will start and the dashboard will begin streaming live data from Pacifica immediately.
+## Architecture
+
+- `/src/hooks/use-pacifica-ws.ts` - WebSocket connection with auto-reconnect
+- `/src/lib/types.ts` - Shared types and formatting utilities
+- `/src/pages/` - 9 feature pages
+- `/src/components/` - Reusable components (Sidebar, FundingChart, WalletButton)
 
 ## What's Next
 
-- Wallet connection for personal PnL tracking
-- Historical funding rate charts
-- Liquidation level heatmap
-- AI-powered market summaries
+- Historical funding rate charts with persistent data
+- Cross-exchange funding rate comparison
+- Liquidation cascade prediction
 - Mobile responsive design
+- AI-powered trade suggestions
 
 ## License
 

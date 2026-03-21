@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
+import FundingChart from "@/components/FundingChart";
 import {
   type PriceData,
   formatFundingRate,
@@ -25,17 +26,19 @@ function OpportunityCard({
   title,
   rows,
   kind,
+  className,
 }: {
   title: string;
   rows: MarketRow[];
   kind: "long" | "short";
+  className?: string;
 }) {
   const colorClass = kind === "long" ? "text-up" : "text-down";
   const tagBg = kind === "long" ? "bg-[#22c55e]/10" : "bg-[#ef4444]/10";
   const tagText = kind === "long" ? "text-up" : "text-down";
 
   return (
-    <div className="bg-card rounded-xl border border-border p-5 flex-1 min-w-[340px]">
+    <div className={`bg-card rounded-xl border border-border p-5 flex-1 min-w-[340px] ${className ?? ""}`}>
       <div className="flex items-center gap-2 mb-4">
         <span className={`text-sm font-medium px-2 py-0.5 rounded ${tagBg} ${tagText}`}>
           {kind === "long" ? "LONG" : "SHORT"}
@@ -85,6 +88,7 @@ function IntensityBar({ funding }: { funding: number }) {
 
 export default function Funding() {
   const { prices, connected } = usePacificaPrices();
+  const [chartSymbol, setChartSymbol] = useState<string>("");
 
   const allRows = useMemo(() => buildRows(prices), [prices]);
 
@@ -112,35 +116,16 @@ export default function Funding() {
     [allRows],
   );
 
+  // Default chart symbol: most extreme funding rate
+  const defaultSymbol = sortedByAbsolute.length > 0 ? sortedByAbsolute[0].data.symbol : "";
+  const activeSymbol = chartSymbol || defaultSymbol;
+  const allSymbols = useMemo(
+    () => sortedByAbsolute.map((r) => r.data.symbol),
+    [sortedByAbsolute],
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Pacifica data source banner */}
-      <p className="text-xs text-muted">Data sourced from Pacifica WebSocket API in real-time</p>
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-fg">Funding Rates</h1>
-          <p className="text-muted text-sm mt-1">
-            Analyze funding rate opportunities across all markets
-          </p>
-        </div>
-        <span
-          className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full border ${
-            connected
-              ? "border-[#22c55e]/30 bg-[#22c55e]/10 text-up"
-              : "border-[#ef4444]/30 bg-[#ef4444]/10 text-down"
-          }`}
-        >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              connected ? "bg-[#22c55e]" : "bg-[#ef4444]"
-            }`}
-          />
-          {connected ? "Connected" : "Disconnected"}
-        </span>
-      </div>
-
+    <div className="space-y-6 page-enter">
       {/* Opportunity Cards */}
       <section>
         <h2 className="text-fg font-semibold text-lg mb-3">
@@ -151,13 +136,45 @@ export default function Funding() {
             title="Top Long Opportunities"
             rows={topLong}
             kind="long"
+            className=""
           />
           <OpportunityCard
             title="Top Short Opportunities"
             rows={topShort}
             kind="short"
+            className=""
           />
         </div>
+      </section>
+
+      {/* Live Funding Rate Trend */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="text-fg font-semibold text-lg">
+              Live Funding Rate Trend
+            </h2>
+            <p className="text-muted text-xs mt-0.5">
+              Real-time funding rate tracking (updates every ~10 seconds)
+            </p>
+          </div>
+          {allSymbols.length > 0 && (
+            <select
+              value={activeSymbol}
+              onChange={(e) => setChartSymbol(e.target.value)}
+              className="bg-card border border-border rounded-lg px-3 py-1.5 text-sm text-fg font-mono focus:outline-none focus:border-[#3b82f6] transition-colors"
+            >
+              {allSymbols.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+        {activeSymbol && (
+          <FundingChart prices={prices} symbol={activeSymbol} />
+        )}
       </section>
 
       {/* Full Markets Table */}

@@ -298,25 +298,7 @@ export default function Screener() {
   const loading = !connected || infoLoading || Object.keys(prices).length === 0;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-fg">Market Screener</h1>
-          <p className="text-xs text-muted">Filter across all Pacifica perpetual markets using live WebSocket data</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span
-            className={`inline-block w-2 h-2 rounded-full ${
-              connected ? "bg-up" : "bg-down"
-            }`}
-          />
-          <span className="text-xs text-muted">
-            {connected ? "Live" : "Disconnected"}
-          </span>
-        </div>
-      </div>
-
+    <div className="space-y-6 page-enter">
       {/* Preset cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {PRESETS.map((p) => (

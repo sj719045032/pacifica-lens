@@ -57,20 +57,20 @@ function colorForValue(value: number, metric: ColorMetric): string {
   const clamped = Math.max(-maxMag, Math.min(maxMag, value));
   const t = Math.abs(clamped) / maxMag; // 0..1
 
+  // Base color (dark bg): rgb(20, 24, 32)
+  // Interpolate toward vivid green or red for high intensity
   if (value >= 0) {
-    // green: from dim to vivid
-    const r = Math.round(20 - t * 10);
-    const g = Math.round(45 + t * 155);
-    const b = Math.round(30 - t * 10);
-    const a = 0.25 + t * 0.65;
-    return `rgba(${r}, ${g}, ${b}, ${a})`;
+    // Interpolate from dark base toward rgb(34, 197, 94) (vivid green)
+    const r = Math.round(20 + t * (34 - 20));
+    const g = Math.round(24 + t * (197 - 24));
+    const b = Math.round(32 + t * (94 - 32));
+    return `rgb(${r}, ${g}, ${b})`;
   }
-  // red: from dim to vivid
-  const r = Math.round(180 + t * 60);
-  const g = Math.round(35 - t * 20);
-  const b = Math.round(35 - t * 15);
-  const a = 0.25 + t * 0.65;
-  return `rgba(${r}, ${g}, ${b}, ${a})`;
+  // Interpolate from dark base toward rgb(239, 68, 68) (vivid red)
+  const r = Math.round(20 + t * (239 - 20));
+  const g = Math.round(24 + t * (68 - 24));
+  const b = Math.round(32 + t * (68 - 32));
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 function borderForValue(value: number, metric: ColorMetric): string {
@@ -294,10 +294,15 @@ function Tooltip({ info }: { info: TooltipInfo }) {
   const oi = parseFloat(p.open_interest);
   const mark = parseFloat(p.mark);
 
+  const tooltipWidth = 220;
+  const tooltipHeight = 200;
+  const offsetX = info.x + tooltipWidth + 20 > window.innerWidth ? -tooltipWidth - 14 : 14;
+  const offsetY = info.y + tooltipHeight + 20 > window.innerHeight ? -tooltipHeight - 14 : 14;
+
   return (
     <div
       className="fixed z-[100] pointer-events-none"
-      style={{ left: info.x + 14, top: info.y + 14 }}
+      style={{ left: info.x + offsetX, top: info.y + offsetY }}
     >
       <div className="bg-card border border-border rounded-xl px-4 py-3 shadow-2xl shadow-black/50 min-w-[200px]">
         <div className="flex items-center gap-2 mb-2">
@@ -367,17 +372,21 @@ function TreemapCell({
   const bg = colorForValue(colorVal, colorMetric);
   const border = borderForValue(colorVal, colorMetric);
 
+  const isLarge = rect.w >= 120 && rect.h >= 70;
   const isSmall = rect.w < 70 || rect.h < 45;
   const isTiny = rect.w < 45 || rect.h < 30;
+
+  // 1px gap via inset positioning
+  const GAP = 1;
 
   return (
     <div
       className="absolute rounded-[6px] overflow-hidden cursor-pointer transition-all duration-150 hover:brightness-125 hover:z-10 flex flex-col items-center justify-center"
       style={{
-        left: rect.x,
-        top: rect.y,
-        width: rect.w,
-        height: rect.h,
+        left: rect.x + GAP,
+        top: rect.y + GAP,
+        width: Math.max(rect.w - GAP * 2, 0),
+        height: Math.max(rect.h - GAP * 2, 0),
         background: bg,
         border: `1px solid ${border}`,
         padding: isTiny ? "2px" : "4px",
@@ -389,7 +398,7 @@ function TreemapCell({
         <>
           <span
             className="font-bold text-fg truncate w-full text-center leading-tight"
-            style={{ fontSize: isSmall ? "10px" : "13px" }}
+            style={{ fontSize: isLarge ? "16px" : isSmall ? "10px" : "13px" }}
           >
             {item.symbol}
           </span>
@@ -397,7 +406,7 @@ function TreemapCell({
             className={`font-mono leading-tight ${
               colorVal >= 0 ? "text-up" : "text-down"
             }`}
-            style={{ fontSize: isSmall ? "9px" : "11px" }}
+            style={{ fontSize: isLarge ? "13px" : isSmall ? "9px" : "11px" }}
           >
             {displayVal}
           </span>
@@ -630,26 +639,9 @@ export default function Heatmap() {
   const count = Object.keys(prices).length;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3rem)] gap-4">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-xl font-bold text-fg">Market Heatmap</h1>
-            <p className="text-xs text-muted">Visualizing real-time data from Pacifica's 63+ perpetual markets</p>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                connected ? "bg-up animate-pulse" : "bg-down"
-              }`}
-            />
-            <span className="text-xs text-muted">
-              {connected ? `${count} markets` : "Connecting..."}
-            </span>
-          </div>
-        </div>
-
+    <div className="flex flex-col h-[calc(100vh-7rem)] gap-4 page-enter">
+      {/* Controls */}
+      <div className="flex items-center justify-end flex-shrink-0">
         <div className="flex items-center gap-4">
           <ToggleGroup
             label="Size"

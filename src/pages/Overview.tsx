@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
 import {
   type PriceData,
@@ -92,6 +93,7 @@ export default function Overview() {
   const { prices, connected } = usePacificaPrices();
   const [marketInfo, setMarketInfo] = useState<Record<string, MarketInfo>>({});
   const [infoLoaded, setInfoLoaded] = useState(false);
+  const prevPricesRef = useRef<Record<string, number>>({});
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("All");
   const [sortKey, setSortKey] = useState<SortKey | "annualized" | "leverage">("volume_24h");
@@ -231,12 +233,42 @@ export default function Overview() {
     }
   }
 
-  /* ---- Loading state ---- */
+  /* ---- Loading state — skeleton screen preserves layout ---- */
   if (!hasData) {
     return (
-      <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-        <p className="text-muted text-sm">
+      <div className="space-y-5 page-enter">
+        {/* Stat cards skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="stat-card">
+              <div className="skeleton h-3 w-20 mb-3" />
+              <div className="skeleton h-7 w-28" />
+            </div>
+          ))}
+        </div>
+        {/* Filter skeleton */}
+        <div className="flex items-center gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="skeleton h-8 w-16 rounded-lg" />
+          ))}
+          <div className="ml-auto skeleton h-9 w-64 rounded-lg" />
+        </div>
+        {/* Table skeleton */}
+        <div className="bg-card rounded-xl border border-border overflow-hidden shadow-card">
+          <div className="p-4 space-y-3">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4" style={{ animationDelay: `${i * 60}ms` }}>
+                <div className="skeleton h-4 w-20" />
+                <div className="skeleton h-4 w-24 ml-auto" />
+                <div className="skeleton h-4 w-16" />
+                <div className="skeleton h-4 w-20" />
+                <div className="skeleton h-4 w-20" />
+                <div className="skeleton h-4 w-16" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <p className="text-muted text-sm text-center animate-pulse">
           {connected ? "Waiting for market data..." : "Connecting to Pacifica..."}
         </p>
       </div>
@@ -245,29 +277,35 @@ export default function Overview() {
 
   /* ---- Render ---- */
   return (
-    <div className="space-y-5">
-      {/* ---------- Header ---------- */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-fg">Market Overview</h1>
-        <div className="flex items-center gap-2 text-xs">
-          <span
-            className={`inline-block w-2 h-2 rounded-full ${
-              connected ? "bg-up animate-pulse" : "bg-down"
-            }`}
-          />
-          <span className={connected ? "text-up" : "text-down"}>
-            {connected ? "Live" : "Disconnected"}
-          </span>
-        </div>
-      </div>
-
+    <div className="space-y-5 page-enter">
       {/* ---------- Stats bar ---------- */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        <StatCard label="24h Volume" value={`$${formatNumber(stats.totalVolume)}`} />
-        <StatCard label="Open Interest" value={`$${formatNumber(stats.totalOI)}`} />
-        <StatCard label="Markets" value={String(stats.marketCount)} />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 stagger-item">
+        <StatCard
+          label="24h Volume"
+          value={`$${formatNumber(stats.totalVolume)}`}
+          accent="accent"
+          icon={<svg className="w-3 h-3 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>}
+          className=""
+        />
+        <StatCard
+          label="Open Interest"
+          value={`$${formatNumber(stats.totalOI)}`}
+          accent="up"
+          icon={<svg className="w-3 h-3 text-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>}
+          className=""
+        />
+        <StatCard
+          label="Markets"
+          value={String(stats.marketCount)}
+          accent="purple"
+          icon={<svg className="w-3 h-3 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>}
+          className=""
+        />
         <StatCard
           label="Gainers / Losers"
+          accent="up"
+          icon={<svg className="w-3 h-3 text-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>}
+          className={stats.gainers >= stats.losers ? "" : ""}
           value={
             <span>
               <span className="text-up">{stats.gainers}</span>
@@ -278,6 +316,9 @@ export default function Overview() {
         />
         <StatCard
           label="Avg Funding (1h)"
+          accent={stats.avgFunding >= 0 ? "up" : "down"}
+          icon={<svg className={`w-3 h-3 ${stats.avgFunding >= 0 ? "text-up" : "text-down"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+          className={stats.avgFunding >= 0 ? "" : ""}
           value={
             <span
               className={
@@ -293,17 +334,19 @@ export default function Overview() {
       </div>
 
       {/* ---------- Filters ---------- */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 stagger-item">
         {/* Category pills */}
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5" role="tablist">
           {CATEGORIES.map((c) => (
             <button
               key={c}
+              role="tab"
+              aria-selected={category === c}
               onClick={() => setCategory(c)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+              className={`press-scale px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
                 category === c
-                  ? "bg-accent text-white"
-                  : "bg-card text-muted hover:text-fg hover:bg-card-hover"
+                  ? "bg-accent text-white scale-[1.02]"
+                  : "bg-card text-muted hover:text-fg hover:bg-card-hover shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
               }`}
             >
               {c}
@@ -330,28 +373,28 @@ export default function Overview() {
             placeholder="Search markets..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-card border border-border rounded-lg pl-9 pr-3 py-2 text-sm text-fg placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors"
+            className="w-full bg-card border border-border rounded-lg pl-9 pr-3 py-2 text-sm text-fg placeholder:text-muted focus:outline-none focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] transition-[border-color,box-shadow] duration-200 ease-out"
           />
         </div>
       </div>
 
       {/* ---------- Table ---------- */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="bg-card rounded-xl border border-border overflow-hidden shadow-card stagger-item">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border">
+              <tr className="border-b-2 border-border">
                 {COLUMNS.map((col) => (
                   <th
                     key={col.key}
                     onClick={() => handleSort(col.key)}
-                    className={`px-4 py-3 font-medium text-muted text-xs uppercase tracking-wider cursor-pointer select-none hover:text-fg transition-colors ${col.align} whitespace-nowrap`}
+                    className={`px-4 py-3.5 font-semibold text-muted text-[11px] uppercase tracking-widest cursor-pointer select-none hover:text-fg transition-[color] duration-150 ease-out ${col.align} whitespace-nowrap`}
                   >
                     <span className="inline-flex items-center gap-1">
                       {col.label}
                       {sortKey === col.key && (
                         <svg
-                          className={`w-3 h-3 transition-transform ${
+                          className={`w-3 h-3 transition-transform duration-200 ease-out ${
                             sortDir === "asc" ? "rotate-180" : ""
                           }`}
                           viewBox="0 0 24 24"
@@ -373,27 +416,43 @@ export default function Overview() {
                 const ann = annualizedFunding(r.funding);
                 const fundingVal = parseFloat(r.funding);
 
+                // Determine if price changed for flash effect
+                const prev = prevPricesRef.current[r.symbol];
+                let flashClass = "";
+                if (prev !== undefined && prev !== mark) {
+                  flashClass = mark > prev ? "flash-up" : "flash-down";
+                }
+                prevPricesRef.current[r.symbol] = mark;
+
                 return (
                   <tr
                     key={r.symbol}
-                    className="border-b border-border/50 hover:bg-card-hover transition-colors"
+                    className="border-b border-border/50 hover:bg-card-hover transition-[background-color] duration-150 ease-out group"
                   >
                     {/* Market */}
                     <td className="px-4 py-3 whitespace-nowrap">
-                      <span className="font-medium text-fg">
+                      <span className="font-medium text-fg mr-2">
                         {r.symbol}
                       </span>
                       {categoryBadge(r.category)}
+                      <span className="inline-flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                        <Link to={`/orderbook?symbol=${r.symbol}`} title="Orderbook" className="text-muted hover:text-accent transition-colors press-scale p-0.5 rounded">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3h18v18H3zM3 9h18M3 15h18"/></svg>
+                        </Link>
+                        <Link to={`/tradeflow?symbol=${r.symbol}`} title="Trade Flow" className="text-muted hover:text-accent transition-colors press-scale p-0.5 rounded">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        </Link>
+                      </span>
                     </td>
 
-                    {/* Price */}
-                    <td className="px-4 py-3 text-right font-mono text-fg whitespace-nowrap">
+                    {/* Price — flashes green/red on change */}
+                    <td className={`px-4 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap rounded ${flashClass}`} key={`${r.symbol}-${mark}`}>
                       ${formatPrice(mark)}
                     </td>
 
                     {/* 24h Change */}
                     <td
-                      className={`px-4 py-3 text-right font-mono whitespace-nowrap ${
+                      className={`px-4 py-3 text-right font-mono tabular-nums whitespace-nowrap ${
                         r.change_pct > 0
                           ? "text-up"
                           : r.change_pct < 0
@@ -406,18 +465,18 @@ export default function Overview() {
                     </td>
 
                     {/* Volume */}
-                    <td className="px-4 py-3 text-right font-mono text-fg whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                       ${formatNumber(parseFloat(r.volume_24h) || 0)}
                     </td>
 
                     {/* OI */}
-                    <td className="px-4 py-3 text-right font-mono text-fg whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                       ${formatNumber(oiUsd)}
                     </td>
 
                     {/* Funding 1h */}
                     <td
-                      className={`px-4 py-3 text-right font-mono whitespace-nowrap ${
+                      className={`px-4 py-3 text-right font-mono tabular-nums whitespace-nowrap ${
                         fundingVal > 0
                           ? "text-up"
                           : fundingVal < 0
@@ -430,7 +489,7 @@ export default function Overview() {
 
                     {/* Annualized Funding */}
                     <td
-                      className={`px-4 py-3 text-right font-mono whitespace-nowrap ${
+                      className={`px-4 py-3 text-right font-mono tabular-nums whitespace-nowrap ${
                         ann > 0
                           ? "text-up"
                           : ann < 0
@@ -443,7 +502,7 @@ export default function Overview() {
                     </td>
 
                     {/* Leverage */}
-                    <td className="px-4 py-3 text-right font-mono text-warn whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-warn whitespace-nowrap">
                       {r.max_leverage ? `${r.max_leverage}x` : "-"}
                     </td>
                   </tr>
@@ -466,13 +525,13 @@ export default function Overview() {
       </div>
 
       {/* ---------- Footer ---------- */}
-      <p className="text-xs text-muted text-center pb-2">
+      <p className="text-xs text-muted text-center pb-2 tabular-nums stagger-item">
         {rows.length} market{rows.length !== 1 ? "s" : ""} shown
         {!infoLoaded && " \u00b7 Loading leverage data..."}
       </p>
 
       {/* ---------- Pacifica Attribution ---------- */}
-      <div className="border-t border-border pt-4 pb-2 flex flex-col items-center gap-2">
+      <div className="border-t border-border pt-4 pb-2 flex flex-col items-center gap-2 stagger-item">
         <p className="text-xs text-muted">
           Powered by <span className="text-accent font-semibold">Pacifica API</span> | Real-time WebSocket data | 63+ perpetual markets
         </p>
@@ -491,14 +550,30 @@ export default function Overview() {
 function StatCard({
   label,
   value,
+  accent = "accent",
+  icon,
+  className,
 }: {
   label: string;
   value: React.ReactNode;
+  accent?: "accent" | "up" | "down" | "purple" | "warn";
+  icon?: React.ReactNode;
+  className?: string;
 }) {
+  const borderColors: Record<string, string> = {
+    accent: "border-l-accent",
+    up: "border-l-up",
+    down: "border-l-down",
+    purple: "border-l-purple-500",
+    warn: "border-l-warn",
+  };
   return (
-    <div className="bg-card border border-border rounded-xl px-4 py-3">
-      <p className="text-xs text-muted mb-1">{label}</p>
-      <p className="text-lg font-semibold font-mono text-fg">{value}</p>
+    <div className={`stat-card border-l-[3px] ${borderColors[accent] ?? "border-l-accent"} ${className ?? ""}`}>
+      <p className="text-[11px] text-muted mb-2 flex items-center gap-1.5 uppercase tracking-wider font-medium">
+        {icon}
+        {label}
+      </p>
+      <p className="text-2xl font-bold font-mono tabular-nums text-fg">{value}</p>
     </div>
   );
 }

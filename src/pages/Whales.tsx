@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
 import { type PriceData, formatNumber, formatPrice } from "@/lib/types";
 
@@ -172,19 +173,19 @@ function TraderDetail({
     return <p className="text-down text-sm text-center py-6">{error}</p>;
 
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-4 border-l-2 border-accent">
       {/* Account summary */}
       {account && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "Account Equity", value: `$${formatNumber(account.account_equity)}` },
-            { label: "Margin Used", value: `$${formatNumber(account.total_margin_used)}` },
-            { label: "Available Balance", value: `$${formatNumber(account.available_to_spend)}` },
-            { label: "Open Positions", value: String(account.positions_count) },
+            { label: "Account Equity", value: `$${formatNumber(account.account_equity)}`, glow: "" },
+            { label: "Margin Used", value: `$${formatNumber(account.total_margin_used)}`, glow: "" },
+            { label: "Available Balance", value: `$${formatNumber(account.available_to_spend)}`, glow: "" },
+            { label: "Open Positions", value: String(account.positions_count), glow: "" },
           ].map((item) => (
             <div
               key={item.label}
-              className="bg-bg rounded-lg border border-border p-3"
+              className={`stat-card ${item.glow}`}
             >
               <div className="text-xs text-muted mb-1">{item.label}</div>
               <div className="text-fg font-mono font-semibold text-sm">
@@ -235,8 +236,10 @@ function TraderDetail({
                     key={`${pos.symbol}-${idx}`}
                     className="border-b border-border last:border-b-0 hover:bg-card-hover/50 transition-colors"
                   >
-                    <td className="px-4 py-2.5 text-fg font-medium">
-                      {pos.symbol}
+                    <td className="px-4 py-2.5 font-medium">
+                      <Link to={`/orderbook?symbol=${pos.symbol}`} className="text-fg hover:text-accent transition-colors" title="View Orderbook">
+                        {pos.symbol}
+                      </Link>
                     </td>
                     <td className="px-4 py-2.5">
                       <span
@@ -316,7 +319,7 @@ function SentimentBar({
       <div className="flex-1 flex h-5 rounded overflow-hidden bg-border">
         {longPct > 0 && (
           <div
-            className="bg-[#22c55e] transition-all flex items-center justify-center"
+            className="bg-[#22c55e] transition-all duration-500 ease-out flex items-center justify-center"
             style={{ width: `${longPct}%` }}
           >
             {longPct >= 20 && (
@@ -328,7 +331,7 @@ function SentimentBar({
         )}
         {shortPct > 0 && (
           <div
-            className="bg-[#ef4444] transition-all flex items-center justify-center"
+            className="bg-[#ef4444] transition-all duration-500 ease-out flex items-center justify-center"
             style={{ width: `${shortPct}%` }}
           >
             {shortPct >= 20 && (
@@ -535,36 +538,7 @@ export default function Whales() {
 
   /* ---- Render ---- */
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-fg">Whale Tracker</h1>
-          <p className="text-muted text-sm mt-1">
-            Track top Pacifica traders' positions in real-time
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted bg-card border border-border rounded-full px-3 py-1">
-            Pacifica REST + WS
-          </span>
-          <span
-            className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full border ${
-              connected
-                ? "border-[#22c55e]/30 bg-[#22c55e]/10 text-up"
-                : "border-[#ef4444]/30 bg-[#ef4444]/10 text-down"
-            }`}
-          >
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                connected ? "bg-[#22c55e]" : "bg-[#ef4444]"
-              }`}
-            />
-            {connected ? "Live" : "Disconnected"}
-          </span>
-        </div>
-      </div>
-
+    <div className="space-y-6 page-enter">
       {/* Leaderboard */}
       <section className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
@@ -622,11 +596,17 @@ export default function Whales() {
             </thead>
             <tbody>
               {lbLoading ? (
-                <tr>
-                  <td colSpan={9} className="px-5">
-                    <Spinner text="Loading leaderboard..." />
-                  </td>
-                </tr>
+                <>
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <tr key={`skel-${i}`} className="border-b border-border">
+                      <td className="px-5 py-3"><div className="skeleton h-4 w-6" /></td>
+                      <td className="px-5 py-3"><div className="skeleton h-4 w-28" /></td>
+                      {Array.from({ length: 7 }).map((_, j) => (
+                        <td key={j} className="px-5 py-3"><div className="skeleton h-4 w-20 ml-auto" /></td>
+                      ))}
+                    </tr>
+                  ))}
+                </>
               ) : lbError ? (
                 <tr>
                   <td
@@ -652,14 +632,30 @@ export default function Whales() {
                     <React.Fragment key={trader.address}>
                       <tr
                         onClick={() => toggleExpand(trader.address)}
-                        className={`border-b border-border cursor-pointer transition-colors ${
+                        className={`border-b border-border cursor-pointer transition-[background-color,box-shadow] duration-150 ease-out group ${
                           isExpanded
-                            ? "bg-accent/5"
-                            : "hover:bg-card-hover"
+                            ? "bg-accent/5 shadow-[inset_2px_0_0_0_rgba(59,130,246,0.5)]"
+                            : trader.rank % 2 === 0
+                              ? "bg-card-hover/20 hover:bg-card-hover active:bg-card-hover/60"
+                              : "hover:bg-card-hover active:bg-card-hover/60"
                         }`}
                       >
-                        <td className="px-5 py-3 text-muted font-mono w-12">
-                          {trader.rank}
+                        <td className="px-5 py-3 font-mono w-12">
+                          {trader.rank <= 3 ? (
+                            <span
+                              className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                                trader.rank === 1
+                                  ? "bg-yellow-500/20 text-yellow-500"
+                                  : trader.rank === 2
+                                    ? "bg-gray-400/20 text-gray-400"
+                                    : "bg-orange-500/20 text-orange-500"
+                              }`}
+                            >
+                              {trader.rank}
+                            </span>
+                          ) : (
+                            <span className="text-muted">{trader.rank}</span>
+                          )}
                         </td>
                         <td className="px-5 py-3 text-fg font-mono whitespace-nowrap">
                           <span className="flex items-center gap-2">
@@ -670,8 +666,8 @@ export default function Whales() {
                               </span>
                             )}
                             <svg
-                              className={`w-3 h-3 text-muted transition-transform ${
-                                isExpanded ? "rotate-180" : ""
+                              className={`w-3.5 h-3.5 transition-transform duration-200 ease-out ${
+                                isExpanded ? "rotate-180 text-accent" : "text-muted group-hover:text-fg"
                               }`}
                               viewBox="0 0 24 24"
                               fill="none"
@@ -714,7 +710,7 @@ export default function Whales() {
                       </tr>
                       {isExpanded && (
                         <tr className="bg-card-hover/30 border-b border-border">
-                          <td colSpan={9}>
+                          <td colSpan={9} className="row-expand-enter">
                             <TraderDetail
                               address={trader.address}
                               prices={prices}
@@ -734,7 +730,7 @@ export default function Whales() {
       {/* Whale Sentiment */}
       <section className="bg-card rounded-xl border border-border p-5">
         <div className="mb-4">
-          <h2 className="text-fg font-semibold">Aggregate Whale Sentiment</h2>
+          <h2 className="text-fg font-semibold">Aggregate <span className="gradient-text">Whale Sentiment</span></h2>
           <p className="text-xs text-muted mt-1">
             Net long/short positioning across top 20 traders per symbol
           </p>
@@ -748,6 +744,14 @@ export default function Whales() {
           </p>
         ) : (
           <div className="space-y-1">
+            {/* Summary */}
+            <div className="text-xs text-muted mb-2 font-mono">
+              {sentiment.length} symbols tracked{" "}
+              <span className="text-muted/50">|</span>{" "}
+              <span className="text-up">{sentiment.reduce((s, x) => s + x.longs, 0)} net long</span>{" "}
+              <span className="text-muted/50">|</span>{" "}
+              <span className="text-down">{sentiment.reduce((s, x) => s + x.shorts, 0)} net short</span>
+            </div>
             {/* Legend */}
             <div className="flex items-center gap-4 mb-3 text-xs">
               <span className="flex items-center gap-1.5">
