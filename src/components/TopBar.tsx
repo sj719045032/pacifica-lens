@@ -11,6 +11,9 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
   "/tradeflow": { title: "Trade Flow", description: "Real-time order flow" },
   "/portfolio": { title: "Portfolio Analyzer", description: "Account analysis" },
   "/ai-insights": { title: "AI Intelligence", description: "Automated market analysis" },
+  "/copy-tracker": { title: "Copy Tracker", description: "Follow top traders' moves" },
+  "/liquidations": { title: "Liquidation Monitor", description: "Real-time liquidation events" },
+  "/correlation": { title: "Cross-Market Correlation", description: "Multi-asset class analysis" },
 };
 
 function splitFirstWord(text: string): [string, string] {

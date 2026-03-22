@@ -10,6 +10,9 @@ import Orderbook from "@/pages/Orderbook";
 import TradeFlow from "@/pages/TradeFlow";
 import Portfolio from "@/pages/Portfolio";
 import AiInsights from "@/pages/AiInsights";
+import CopyTracker from "@/pages/CopyTracker";
+import Liquidations from "@/pages/Liquidations";
+import Correlation from "@/pages/Correlation";
 
 export default function App() {
   return (
@@ -29,6 +32,9 @@ export default function App() {
             <Route path="/tradeflow" element={<TradeFlow />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/ai-insights" element={<AiInsights />} />
+            <Route path="/copy-tracker" element={<CopyTracker />} />
+            <Route path="/liquidations" element={<Liquidations />} />
+            <Route path="/correlation" element={<Correlation />} />
           </Routes>
         </div>
       </main>

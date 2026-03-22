@@ -12,6 +12,9 @@ const NAV = [
   { to: "/tradeflow", icon: "M22 12h-4l-3 9L9 3l-3 9H2", label: "Trade Flow" },
   { to: "/portfolio", icon: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z", label: "Portfolio" },
   { to: "/ai-insights", icon: "M12 2a4 4 0 014 4v1a1 1 0 001 1h1a4 4 0 010 8h-1a1 1 0 00-1 1v1a4 4 0 01-8 0v-1a1 1 0 00-1-1H6a4 4 0 010-8h1a1 1 0 001-1V6a4 4 0 014-4z", label: "AI Insights" },
+  { to: "/copy-tracker", icon: "M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2M9 14l2 2 4-4M15 2H9a1 1 0 00-1 1v1a1 1 0 001 1h6a1 1 0 001-1V3a1 1 0 00-1-1z", label: "Copy Tracker" },
+  { to: "/liquidations", icon: "M13 10V3L4 14h7v7l9-11h-7z", label: "Liquidations" },
+  { to: "/correlation", icon: "M18 20V10M12 20V4M6 20v-6", label: "Correlation" },
 ];
 
 export function Sidebar() {
