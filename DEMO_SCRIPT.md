@@ -1,6 +1,6 @@
 # Pacifica Lens - Demo Video Recording Script
 
-> Total Duration: ~5:45 | Language: Chinese (technical terms in English)
+> Total Duration: ~6:20 | Language: Chinese (technical terms in English)
 > Format: Screen recording + voice narration | Resolution: 1920x1080
 
 ---
@@ -44,14 +44,14 @@
 
 > Pacifica Lens 是一个实时的永续合约分析平台，完全基于 Pacifica API 构建。
 >
-> 整个产品有 9 个功能页面，深度集成了 12 个以上的 Pacifica API endpoint，包括 WebSocket 实时推送和 REST API。
+> 整个产品有 11 个功能页面，深度集成了 12 个以上的 Pacifica API endpoint，包括 WebSocket 实时推送和 REST API。
 >
 > 每一个页面的每一条数据，都来自 Pacifica。这不是一个使用 mock data 的原型，而是一个真正连接 Pacifica 生产环境的实时工具。
 >
 > 下面让我带大家快速看一下每个核心功能。
 
 ### Screen Action:
-- **0:30** - 鼠标移到左侧 sidebar，从上到下缓慢划过所有 9 个图标
+- **0:30** - 鼠标移到左侧 sidebar，从上到下缓慢划过所有 11 个图标
 - **0:40** - 指向页面底部 "Powered by Pacifica API | Real-time WebSocket data | 63+ perpetual markets" 字样
 - **0:50** - 指向 "Built for Pacifica Hackathon 2026" badge
 
@@ -206,7 +206,7 @@
 
 ---
 
-## Section 9: Live Demo - Portfolio (4:00 - 4:20)
+## Section 9: Live Demo - Portfolio (4:00 - 4:25)
 
 ### Screen: Click Portfolio in sidebar
 
@@ -214,20 +214,23 @@
 
 > Portfolio Analyzer 可以分析任何 Pacifica 账户。
 >
-> 你可以手动输入一个 Solana 地址，或者点击这些预设的鲸鱼地址快速查看。这里还集成了 Privy 钱包连接 -- 如果你连接了自己的钱包，可以直接分析自己的 portfolio。
+> 你可以手动输入一个 Solana 地址，或者直接从 Whale Selector 里选择一个排名靠前的鲸鱼地址。这里还集成了 Privy 钱包连接 -- 如果你连接了自己的钱包，可以直接分析自己的 portfolio。
 >
-> 让我点击一个鲸鱼地址。这会同时调用 4 个 Pacifica API：account（账户总览）、positions（当前仓位）、positions/history（交易历史）、funding/history（funding 收付记录）。
+> 让我从 Whale Selector 里点击一个鲸鱼地址。这会同时调用 4 个 Pacifica API：account（账户总览）、positions（当前仓位）、positions/history（交易历史）、funding/history（funding 收付记录）。
 >
 > 你可以看到完整的 Account Overview、Current Positions with real-time unrealized PnL、Trade History with win rate 统计、以及 Funding History。
+>
+> 注意底部还有 Trade Pattern Analysis -- 它基于交易历史自动分析交易行为模式，包括持仓时长分布、偏好的交易时段、常交易的 symbol 集中度等。帮助理解一个交易员的风格。
 
 ### Screen Action:
 - **4:00** - 点击 sidebar 的 Portfolio 图标
-- **4:03** - 点击第一个预设的 whale address button
+- **4:03** - 点击 Whale Selector，选择一个鲸鱼地址
 - **4:06** - 等待 loading（1-2 秒），数据出现
 - **4:08** - 快速指向 Account Overview 卡片（Equity, Available Balance, Margin Used, etc.）
 - **4:12** - 滚动到 Current Positions table，指向 unrealized PnL column
 - **4:15** - 快速滚动到 Trade History，指向 Win Rate stat card
 - **4:18** - 快速展示 Funding History section
+- **4:20** - 滚动到 Trade Pattern Analysis，指向持仓时长分布和交易时段偏好
 
 ---
 
@@ -249,7 +252,45 @@
 
 ---
 
-## Section 11: Pacifica Integration (4:30 - 5:00)
+## Section 10B: Live Demo - Liquidation Monitor (4:30 - 4:45)
+
+### Screen: Click Liquidation Monitor in sidebar
+
+### Narration:
+
+> 这是 Liquidation Monitor，清算监控页面。它实时追踪 Pacifica 全平台的清算事件。
+>
+> 上方是 24 小时清算统计 -- 总清算金额、long 和 short 各占多少、以及最大的单笔清算。下面是清算事件 timeline，每一笔都标注了 symbol、方向、金额和时间。如果出现密集清算，说明市场正在经历高波动或连环清算，这对判断市场状态非常关键。
+
+### Screen Action:
+- **4:30** - 点击 sidebar 的 Liquidation Monitor 图标
+- **4:33** - 指向 24 小时清算统计卡片（总金额、long/short 分布）
+- **4:38** - 滚动展示清算事件 timeline
+- **4:42** - 指向最大单笔清算事件
+
+---
+
+## Section 10C: Live Demo - Cross-Market Correlation (4:45 - 5:05)
+
+### Screen: Click Cross-Market Correlation in sidebar
+
+### Narration:
+
+> Cross-Market Correlation 是 Pacifica Lens 的独特功能。Pacifica 不仅有 crypto，还有美股、大宗商品、外汇、指数 -- 这意味着我们可以分析跨资产类别的相关性。
+>
+> 这个页面展示了各市场之间的实时相关性矩阵。你可以看到 BTC 和美股（比如 NVDA、TSLA）之间的相关性，BTC 和黄金 XAU 的相关性，以及各 crypto 之间的相关性。颜色深浅代表相关性强弱。
+>
+> 这对于分散风险和发现跨市场套利机会非常有价值，也是只有 Pacifica 这种多资产 perp DEX 才能提供的独特视角。
+
+### Screen Action:
+- **4:45** - 点击 sidebar 的 Cross-Market Correlation 图标
+- **4:48** - 指向相关性矩阵，展示颜色编码（正相关/负相关）
+- **4:55** - 鼠标悬停在 BTC 和某个美股之间的格子上，展示 tooltip
+- **5:00** - 指向 crypto vs commodities 的相关性区域
+
+---
+
+## Section 11: Pacifica Integration (5:05 - 5:35)
 
 ### Screen: Stay on any page, or scroll to show "Powered by Pacifica API" footer
 
@@ -274,14 +315,14 @@
 > 此外，我们还集成了 Privy 作为钱包连接方案，这是 Pacifica Hackathon 的赞助商工具之一。
 
 ### Screen Action:
-- **4:30** - 可以打开浏览器 Network tab 快速展示 API calls（optional，如果怕太技术可以跳过）
-- **4:40** - 或者就在界面上指向各页面的 "Pacifica REST + WS" badge、"Data sourced from Pacifica API" 等标注
-- **4:50** - 切回 Overview 页面，指向底部 "Powered by Pacifica API" 字样
-- **4:55** - 点击 sidebar 底部的 Pacifica 外链图标
+- **5:05** - 可以打开浏览器 Network tab 快速展示 API calls（optional，如果怕太技术可以跳过）
+- **5:15** - 或者就在界面上指向各页面的 "Pacifica REST + WS" badge、"Data sourced from Pacifica API" 等标注
+- **5:25** - 切回 Overview 页面，指向底部 "Powered by Pacifica API" 字样
+- **5:30** - 点击 sidebar 底部的 Pacifica 外链图标
 
 ---
 
-## Section 12: Value & Impact (5:00 - 5:30)
+## Section 12: Value & Impact (5:35 - 6:05)
 
 ### Screen: Overview page, data flowing
 
@@ -302,14 +343,14 @@
 > 目标用户就是 Pacifica 上的活跃交易员 -- 无论是手动交易还是做策略的。
 
 ### Screen Action:
-- **5:00** - 保持在 Overview 页面
-- **5:10** - 可以快速切到 Funding 页面，指向 opportunity card
-- **5:15** - 切到 Whales 页面，指向 sentiment bar
-- **5:20** - 切回 Overview
+- **5:35** - 保持在 Overview 页面
+- **5:45** - 可以快速切到 Funding 页面，指向 opportunity card
+- **5:50** - 切到 Whales 页面，指向 sentiment bar
+- **5:55** - 切回 Overview
 
 ---
 
-## Section 13: What's Next (5:30 - 5:45)
+## Section 13: What's Next (6:05 - 6:20)
 
 ### Screen: Overview page
 
@@ -328,9 +369,9 @@
 > 感谢大家的时间。这就是 Pacifica Lens -- 一个为 Pacifica 交易员打造的实时分析平台。谢谢！
 
 ### Screen Action:
-- **5:30** - 保持在 Overview 页面，数据继续实时更新
-- **5:40** - 鼠标放到 "PL" logo 上
-- **5:45** - 结束录制
+- **6:05** - 保持在 Overview 页面，数据继续实时更新
+- **6:15** - 鼠标放到 "PL" logo 上
+- **6:20** - 结束录制
 
 ---
 
@@ -349,9 +390,9 @@
 - Keep scrolling smooth and controlled
 
 ### Timing
-- The most important section is the live demo (Sections 3-10). If you need to cut time, shorten Section 12 (Value) and Section 13 (What's Next)
+- The most important section is the live demo (Sections 3-10C). If you need to cut time, shorten Section 12 (Value) and Section 13 (What's Next)
 - If a page takes time to load, fill with a brief comment: "数据正在加载中，这都是实时从 Pacifica API 获取的真实数据"
-- Target total: 5:45. Acceptable range: 5:00 - 6:30. Absolute maximum: 10:00
+- Target total: 6:20. Acceptable range: 5:30 - 7:00. Absolute maximum: 10:00
 
 ### Common Pitfalls to Avoid
 - Do NOT spend time showing code or architecture diagrams -- judges want to see it working
