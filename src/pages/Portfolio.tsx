@@ -305,7 +305,12 @@ export default function Portfolio() {
   return (
     <div className="space-y-6 page-enter">
       {/* ---------- Address Input ---------- */}
-      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+      <div className={`bg-card rounded-xl border border-border p-5 space-y-3 ${!activeAddr && !loading ? "mt-8 mb-4" : ""}`}>
+        {!activeAddr && !loading && (
+          <p className="text-muted text-sm mb-2">
+            Enter any Solana address to view positions, trade history, and funding payments
+          </p>
+        )}
         <div className="flex gap-3">
           <input
             type="text"
@@ -318,12 +323,12 @@ export default function Portfolio() {
             onKeyDown={(e) => {
               if (e.key === "Enter") analyze(inputAddr);
             }}
-            className="flex-1 bg-bg border border-border rounded-lg px-4 py-2.5 text-sm text-fg font-mono placeholder:text-muted focus:outline-none focus:border-accent/50 transition-colors"
+            className="flex-1 bg-bg border border-border rounded-lg px-4 py-2.5 text-sm text-fg font-mono placeholder:text-muted focus:outline-none focus:border-accent/50 transition-all duration-200"
           />
           <button
             onClick={() => analyze(inputAddr)}
             disabled={loading || !inputAddr.trim()}
-            className="px-6 py-2.5 bg-accent text-white text-sm font-semibold rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 bg-accent text-white text-sm font-semibold rounded-lg hover:bg-accent/90 transition-colors duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Loading..." : "Analyze"}
           </button>
@@ -334,7 +339,7 @@ export default function Portfolio() {
             <button
               key={addr}
               onClick={() => analyze(addr)}
-              className="text-xs font-mono text-accent hover:text-accent/80 bg-accent/10 px-2 py-1 rounded-lg transition-colors"
+              className="text-xs font-mono text-accent hover:text-accent/80 bg-accent/10 px-2 py-1 rounded-lg transition-colors duration-150 cursor-pointer"
             >
               {truncateAddress(addr)}
             </button>
@@ -562,13 +567,13 @@ function PositionsTable({
                         {isLong ? "LONG" : "SHORT"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-fg whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                       {p.amount.toLocaleString("en-US", { maximumFractionDigits: 6 })}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-fg whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                       ${formatPrice(p.entryPrice)}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-fg whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                       {p.markPrice !== null ? (
                         "$" + formatPrice(p.markPrice)
                       ) : (
@@ -576,7 +581,7 @@ function PositionsTable({
                       )}
                     </td>
                     <td
-                      className={`px-4 py-3 text-right font-mono whitespace-nowrap ${
+                      className={`px-4 py-3 text-right font-mono tabular-nums whitespace-nowrap ${
                         p.unrealizedPnl === null
                           ? "text-muted"
                           : p.unrealizedPnl >= 0
@@ -587,7 +592,7 @@ function PositionsTable({
                       {p.unrealizedPnl !== null ? formatUsd(p.unrealizedPnl) : "--"}
                     </td>
                     <td
-                      className={`px-4 py-3 text-right font-mono whitespace-nowrap ${
+                      className={`px-4 py-3 text-right font-mono tabular-nums whitespace-nowrap ${
                         p.roe === null
                           ? "text-muted"
                           : p.roe >= 0
@@ -597,7 +602,7 @@ function PositionsTable({
                     >
                       {p.roe !== null ? formatPct(p.roe) : "--"}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-warn whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-warn whitespace-nowrap">
                       {liqPrice > 0 ? "$" + formatPrice(liqPrice) : "--"}
                     </td>
                   </tr>
@@ -610,7 +615,7 @@ function PositionsTable({
                   Total Unrealized PnL
                 </td>
                 <td
-                  className={`px-4 py-3 text-right font-mono font-semibold whitespace-nowrap ${
+                  className={`px-4 py-3 text-right font-mono tabular-nums font-semibold whitespace-nowrap ${
                     totalUnrealizedPnl >= 0 ? "text-up" : "text-down"
                   }`}
                 >
@@ -741,24 +746,24 @@ function TradeHistory({
                         {isLong ? "LONG" : "SHORT"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-fg whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                       {amount.toLocaleString("en-US", { maximumFractionDigits: 6 })}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-fg whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                       ${formatPrice(entryPrice)}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-fg whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                       ${formatPrice(exitPrice)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-right font-mono whitespace-nowrap ${
+                      className={`px-4 py-3 text-right font-mono tabular-nums whitespace-nowrap ${
                         pnl >= 0 ? "text-up" : "text-down"
                       }`}
                     >
                       {formatUsd(pnl)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-right font-mono whitespace-nowrap ${
+                      className={`px-4 py-3 text-right font-mono tabular-nums whitespace-nowrap ${
                         pnlPct >= 0 ? "text-up" : "text-down"
                       }`}
                     >
@@ -873,18 +878,18 @@ function FundingHistorySection({
                         {isLong ? "LONG" : "SHORT"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-fg whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                       {parseFloat(f.amount).toLocaleString("en-US", { maximumFractionDigits: 6 })}
                     </td>
                     <td
-                      className={`px-4 py-3 text-right font-mono whitespace-nowrap ${
+                      className={`px-4 py-3 text-right font-mono tabular-nums whitespace-nowrap ${
                         rate >= 0 ? "text-up" : "text-down"
                       }`}
                     >
                       {(rate * 100).toFixed(4)}%
                     </td>
                     <td
-                      className={`px-4 py-3 text-right font-mono whitespace-nowrap ${
+                      className={`px-4 py-3 text-right font-mono tabular-nums whitespace-nowrap ${
                         payout >= 0 ? "text-up" : "text-down"
                       }`}
                     >

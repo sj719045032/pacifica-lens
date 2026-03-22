@@ -13,24 +13,25 @@ import AiInsights from "@/pages/AiInsights";
 
 export default function App() {
   return (
-    <div className="flex min-h-screen">
+    <>
+      <div className="ambient-bg" />
       <Sidebar />
       <TopBar />
-      <main className="flex-1 ml-16 pt-14 overflow-auto scroll-fade">
+      <main className="ml-16 pt-14 min-h-screen overflow-auto scroll-fade relative z-10">
         <div className="px-6 py-5">
-        <Routes>
-          <Route path="/" element={<Overview />} />
-          <Route path="/funding" element={<Funding />} />
-          <Route path="/heatmap" element={<Heatmap />} />
-          <Route path="/screener" element={<Screener />} />
-          <Route path="/whales" element={<Whales />} />
-          <Route path="/orderbook" element={<Orderbook />} />
-          <Route path="/tradeflow" element={<TradeFlow />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/ai-insights" element={<AiInsights />} />
-        </Routes>
+          <Routes>
+            <Route path="/" element={<Overview />} />
+            <Route path="/funding" element={<Funding />} />
+            <Route path="/heatmap" element={<Heatmap />} />
+            <Route path="/screener" element={<Screener />} />
+            <Route path="/whales" element={<Whales />} />
+            <Route path="/orderbook" element={<Orderbook />} />
+            <Route path="/tradeflow" element={<TradeFlow />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/ai-insights" element={<AiInsights />} />
+          </Routes>
         </div>
       </main>
-    </div>
+    </>
   );
 }

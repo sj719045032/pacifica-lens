@@ -173,7 +173,7 @@ function TraderDetail({
     return <p className="text-down text-sm text-center py-6">{error}</p>;
 
   return (
-    <div className="space-y-4 p-4 border-l-2 border-accent">
+    <div className="space-y-4 p-5 border-l-2 border-accent bg-card-hover/10">
       {/* Account summary */}
       {account && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -632,7 +632,7 @@ export default function Whales() {
                     <React.Fragment key={trader.address}>
                       <tr
                         onClick={() => toggleExpand(trader.address)}
-                        className={`border-b border-border cursor-pointer transition-[background-color,box-shadow] duration-150 ease-out group ${
+                        className={`border-b border-border cursor-pointer transition-[background-color,box-shadow] duration-150 ease-out group row-glow ${
                           isExpanded
                             ? "bg-accent/5 shadow-[inset_2px_0_0_0_rgba(59,130,246,0.5)]"
                             : trader.rank % 2 === 0
@@ -679,32 +679,32 @@ export default function Whales() {
                           </span>
                         </td>
                         <td
-                          className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_1d)}`}
+                          className={`px-5 py-3 text-right font-mono tabular-nums whitespace-nowrap ${pnlColor(trader.pnl_1d)}`}
                         >
                           {formatPnl(trader.pnl_1d)}
                         </td>
                         <td
-                          className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_7d)}`}
+                          className={`px-5 py-3 text-right font-mono tabular-nums whitespace-nowrap ${pnlColor(trader.pnl_7d)}`}
                         >
                           {formatPnl(trader.pnl_7d)}
                         </td>
                         <td
-                          className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_30d)}`}
+                          className={`px-5 py-3 text-right font-mono tabular-nums whitespace-nowrap ${pnlColor(trader.pnl_30d)}`}
                         >
                           {formatPnl(trader.pnl_30d)}
                         </td>
                         <td
-                          className={`px-5 py-3 text-right font-mono whitespace-nowrap ${pnlColor(trader.pnl_all_time)}`}
+                          className={`px-5 py-3 text-right font-mono tabular-nums whitespace-nowrap ${pnlColor(trader.pnl_all_time)}`}
                         >
                           {formatPnl(trader.pnl_all_time)}
                         </td>
-                        <td className="px-5 py-3 text-right font-mono text-fg whitespace-nowrap">
+                        <td className="px-5 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                           ${formatNumber(trader.equity_current)}
                         </td>
-                        <td className="px-5 py-3 text-right font-mono text-fg whitespace-nowrap">
+                        <td className="px-5 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                           ${formatNumber(trader.oi_current)}
                         </td>
-                        <td className="px-5 py-3 text-right font-mono text-fg whitespace-nowrap">
+                        <td className="px-5 py-3 text-right font-mono tabular-nums text-fg whitespace-nowrap">
                           ${formatNumber(trader.volume_30d)}
                         </td>
                       </tr>

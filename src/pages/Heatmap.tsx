@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
 import {
   type PriceData,
@@ -294,17 +295,26 @@ function Tooltip({ info }: { info: TooltipInfo }) {
   const oi = parseFloat(p.open_interest);
   const mark = parseFloat(p.mark);
 
-  const tooltipWidth = 220;
-  const tooltipHeight = 200;
-  const offsetX = info.x + tooltipWidth + 20 > window.innerWidth ? -tooltipWidth - 14 : 14;
-  const offsetY = info.y + tooltipHeight + 20 > window.innerHeight ? -tooltipHeight - 14 : 14;
+  const tw = 240;
+  const th = 180;
+  const gap = 10;
+  const vw = document.documentElement.clientWidth;
+  const vh = document.documentElement.clientHeight;
+  // Default: below-right of cursor. Flip if would overflow.
+  let left = info.x + gap;
+  let top = info.y + gap;
+  if (left + tw > vw) left = info.x - tw - gap;
+  if (top + th > vh) top = info.y - th - gap;
+  // Final clamp
+  left = Math.max(4, Math.min(left, vw - tw - 4));
+  top = Math.max(4, Math.min(top, vh - th - 4));
 
   return (
     <div
       className="fixed z-[100] pointer-events-none"
-      style={{ left: info.x + offsetX, top: info.y + offsetY }}
+      style={{ left, top }}
     >
-      <div className="bg-card border border-border rounded-xl px-4 py-3 shadow-2xl shadow-black/50 min-w-[200px]">
+      <div className="bg-card border border-border rounded-xl px-4 py-3 shadow-2xl shadow-black/50 w-[240px]">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-fg font-bold text-sm">{item.symbol}</span>
           <span className="text-[10px] text-muted bg-bg px-1.5 py-0.5 rounded">
@@ -353,11 +363,13 @@ function TreemapCell({
   rect,
   colorMetric,
   onMouseEnter,
+  onMouseMove,
   onMouseLeave,
 }: {
   rect: LayoutRect;
   colorMetric: ColorMetric;
   onMouseEnter: (e: React.MouseEvent, item: TreemapItem) => void;
+  onMouseMove: (e: React.MouseEvent) => void;
   onMouseLeave: () => void;
 }) {
   const { item } = rect;
@@ -392,6 +404,7 @@ function TreemapCell({
         padding: isTiny ? "2px" : "4px",
       }}
       onMouseEnter={(e) => onMouseEnter(e, item)}
+      onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
     >
       {!isTiny && (
@@ -426,6 +439,7 @@ function CategoryTreemap({
   rect,
   colorMetric,
   onMouseEnter,
+  onMouseMove,
   onMouseLeave,
 }: {
   category: Category;
@@ -433,9 +447,10 @@ function CategoryTreemap({
   rect: { x: number; y: number; w: number; h: number };
   colorMetric: ColorMetric;
   onMouseEnter: (e: React.MouseEvent, item: TreemapItem) => void;
+  onMouseMove: (e: React.MouseEvent) => void;
   onMouseLeave: () => void;
 }) {
-  const LABEL_HEIGHT = 22;
+  const LABEL_HEIGHT = 0;
 
   const rects = useMemo(() => {
     const treemapRect = {
@@ -457,24 +472,27 @@ function CategoryTreemap({
         height: rect.h,
       }}
     >
-      {/* Category label */}
-      <div
-        className="absolute top-0 left-0 w-full flex items-center px-2 z-20"
-        style={{ height: LABEL_HEIGHT }}
-      >
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-muted/70">
-          {CATEGORY_LABELS[category]}
-        </span>
-      </div>
+      {/* Category label (hidden when single treemap) */}
+      {LABEL_HEIGHT > 0 && (
+        <div
+          className="absolute top-0 left-0 w-full flex items-center px-2 z-20"
+          style={{ height: LABEL_HEIGHT }}
+        >
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-muted/70">
+            {CATEGORY_LABELS[category]}
+          </span>
+        </div>
+      )}
       {/* Cells */}
-      <div className="absolute inset-0" style={{ top: LABEL_HEIGHT }}>
-        <div className="relative w-full h-full">
+      <div className="absolute inset-0 overflow-hidden" style={{ top: LABEL_HEIGHT }}>
+        <div className="relative w-full h-full overflow-hidden">
           {rects.map((r) => (
             <TreemapCell
               key={r.item.symbol}
               rect={r}
               colorMetric={colorMetric}
               onMouseEnter={onMouseEnter}
+              onMouseMove={onMouseMove}
               onMouseLeave={onMouseLeave}
             />
           ))}
@@ -560,58 +578,26 @@ export default function Heatmap() {
     return groups;
   }, [prices, sizeMetric, colorMetric]);
 
-  // Layout categories as a top-level treemap so bigger categories get more space
+  // Flatten all items into a single treemap (no category splitting)
+  const allItems = useMemo(() => {
+    const items: TreemapItem[] = [];
+    for (const list of groupedItems.values()) {
+      items.push(...list);
+    }
+    items.sort((a, b) => b.sizeValue - a.sizeValue);
+    return items;
+  }, [groupedItems]);
+
   const categoryLayouts = useMemo(() => {
     if (containerSize.w === 0 || containerSize.h === 0) return [];
+    if (allItems.length === 0) return [];
 
-    const GAP = 6;
-    const ordered = CATEGORY_ORDER.filter((c) => groupedItems.has(c));
-    if (ordered.length === 0) return [];
-
-    // Compute total value per category
-    const catValues = ordered.map((c) => ({
-      category: c,
-      items: groupedItems.get(c)!,
-      total: groupedItems.get(c)!.reduce((s, it) => s + it.sizeValue, 0),
-    }));
-
-    const totalValue = catValues.reduce((s, cv) => s + cv.total, 0);
-    if (totalValue <= 0) return [];
-
-    // Simple horizontal strip layout for categories, proportional to value
-    const layouts: {
-      category: Category;
-      items: TreemapItem[];
-      rect: { x: number; y: number; w: number; h: number };
-    }[] = [];
-
-    // Use a simplified squarify for categories too
-    // For simplicity, do a horizontal strip layout
-    let x = 0;
-    const availableW = containerSize.w - (ordered.length - 1) * GAP;
-
-    for (let i = 0; i < catValues.length; i++) {
-      const fraction = catValues[i].total / totalValue;
-      const w = i === catValues.length - 1
-        ? containerSize.w - x // last one gets remaining to avoid rounding gaps
-        : Math.round(fraction * availableW);
-
-      layouts.push({
-        category: catValues[i].category,
-        items: catValues[i].items,
-        rect: {
-          x,
-          y: 0,
-          w: Math.max(w, 0),
-          h: containerSize.h,
-        },
-      });
-
-      x += w + GAP;
-    }
-
-    return layouts;
-  }, [groupedItems, containerSize]);
+    return [{
+      category: "crypto" as Category,
+      items: allItems,
+      rect: { x: 0, y: 0, w: containerSize.w, h: containerSize.h },
+    }];
+  }, [allItems, containerSize]);
 
   // Tooltip handlers
   const handleMouseEnter = useCallback(
@@ -623,13 +609,11 @@ export default function Heatmap() {
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (tooltip) {
-        setTooltip((prev) =>
-          prev ? { ...prev, x: e.clientX, y: e.clientY } : null,
-        );
-      }
+      setTooltip((prev) =>
+        prev ? { ...prev, x: e.clientX, y: e.clientY } : null,
+      );
     },
-    [tooltip],
+    [],
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -639,7 +623,7 @@ export default function Heatmap() {
   const count = Object.keys(prices).length;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-7rem)] gap-4 page-enter">
+    <div className="flex flex-col h-[calc(100vh-10rem)] gap-4 page-enter overflow-hidden">
       {/* Controls */}
       <div className="flex items-center justify-end flex-shrink-0">
         <div className="flex items-center gap-4">
@@ -706,7 +690,7 @@ export default function Heatmap() {
       {/* Treemap Container */}
       <div
         ref={setContainerRef}
-        className="flex-1 relative rounded-xl bg-card border border-border overflow-hidden"
+        className="flex-1 relative rounded-xl bg-card border border-border overflow-hidden min-h-0"
         onMouseMove={handleMouseMove}
       >
         {count === 0 ? (
@@ -725,14 +709,15 @@ export default function Heatmap() {
               rect={cl.rect}
               colorMetric={colorMetric}
               onMouseEnter={handleMouseEnter}
+              onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
             />
           ))
         )}
       </div>
 
-      {/* Tooltip */}
-      {tooltip && <Tooltip info={tooltip} />}
+      {/* Tooltip - portal to body to avoid filter/transform breaking fixed positioning */}
+      {tooltip && createPortal(<Tooltip info={tooltip} />, document.body)}
     </div>
   );
 }

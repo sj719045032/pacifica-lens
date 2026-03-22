@@ -41,9 +41,21 @@ export function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-full w-16 bg-gradient-to-b from-card to-bg border-r border-border flex flex-col items-center py-4 z-50">
-      <div className="absolute top-3 right-0 w-1.5 h-1.5 bg-accent rounded-full shadow-[0_0_8px_rgba(59,130,246,0.6)] -translate-x-1/2" />
-      <NavLink to="/" className="mb-8 font-bold font-mono text-lg press-scale block">
-        <span className="gradient-text">PL</span>
+      <NavLink to="/" className="mb-8 press-scale block" title="Pacifica Lens">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <defs>
+            <linearGradient id="logo-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#3b82f6"/>
+              <stop offset="100%" stopColor="#8b5cf6"/>
+            </linearGradient>
+          </defs>
+          <circle cx="16" cy="16" r="8" stroke="url(#logo-accent)" strokeWidth="2"/>
+          <circle cx="16" cy="16" r="3" fill="url(#logo-accent)" opacity="0.9"/>
+          <line x1="16" y1="5" x2="16" y2="10" stroke="url(#logo-accent)" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+          <line x1="16" y1="22" x2="16" y2="27" stroke="url(#logo-accent)" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+          <line x1="5" y1="16" x2="10" y2="16" stroke="url(#logo-accent)" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+          <line x1="22" y1="16" x2="27" y2="16" stroke="url(#logo-accent)" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+        </svg>
       </NavLink>
       <nav ref={navRef} className="relative flex flex-col gap-1.5">
         {/* Sliding active indicator */}
@@ -51,7 +63,7 @@ export function Sidebar() {
 
         {NAV.map((n, idx) => (
           <div key={n.to}>
-            {idx === 4 && <div className="w-8 border-t border-border my-2" />}
+            {idx === 4 && <div className="w-8 divider-gradient my-2" />}
             <NavLink
               to={n.to}
               end={n.to === "/"}

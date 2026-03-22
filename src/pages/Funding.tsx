@@ -38,7 +38,7 @@ function OpportunityCard({
   const tagText = kind === "long" ? "text-up" : "text-down";
 
   return (
-    <div className={`bg-card rounded-xl border border-border p-5 flex-1 min-w-[340px] ${className ?? ""}`}>
+    <div className={`bg-card rounded-xl border border-border p-5 flex-1 min-w-[340px] ${kind === "long" ? "border-t-2 border-t-[#22c55e]/50" : "border-t-2 border-t-[#ef4444]/50"} ${className ?? ""}`}>
       <div className="flex items-center gap-2 mb-4">
         <span className={`text-sm font-medium px-2 py-0.5 rounded ${tagBg} ${tagText}`}>
           {kind === "long" ? "LONG" : "SHORT"}
@@ -49,15 +49,15 @@ function OpportunityCard({
         {rows.map((r) => (
           <div
             key={r.data.symbol}
-            className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-card-hover transition-colors"
+            className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-card-hover transition-colors duration-150 cursor-pointer"
           >
             <span className="text-fg font-medium text-sm w-28 truncate">
               {r.data.symbol}
             </span>
-            <span className={`font-mono text-sm ${colorClass}`}>
+            <span className={`font-mono tabular-nums text-sm ${colorClass}`}>
               {formatFundingRate(r.data.funding)}
             </span>
-            <span className="font-mono text-xs text-muted">
+            <span className="font-mono tabular-nums text-xs text-muted">
               {r.annualized >= 0 ? "+" : ""}
               {r.annualized.toFixed(1)}%/yr
             </span>
@@ -162,7 +162,7 @@ export default function Funding() {
             <select
               value={activeSymbol}
               onChange={(e) => setChartSymbol(e.target.value)}
-              className="bg-card border border-border rounded-lg px-3 py-1.5 text-sm text-fg font-mono focus:outline-none focus:border-[#3b82f6] transition-colors"
+              className="bg-card border border-border rounded-lg px-3 py-1.5 text-sm text-fg font-mono focus:outline-none focus:border-[#3b82f6] transition-colors duration-150 cursor-pointer"
             >
               {allSymbols.map((s) => (
                 <option key={s} value={s}>
@@ -221,12 +221,12 @@ export default function Funding() {
                       {row.data.symbol}
                     </td>
                     <td
-                      className={`px-5 py-3 text-right font-mono ${rateColor}`}
+                      className={`px-5 py-3 text-right font-mono tabular-nums ${rateColor}`}
                     >
                       {formatFundingRate(row.data.funding)}
                     </td>
                     <td
-                      className={`px-5 py-3 text-right font-mono ${
+                      className={`px-5 py-3 text-right font-mono tabular-nums ${
                         parseFloat(row.data.next_funding) >= 0
                           ? "text-up"
                           : "text-down"
@@ -235,7 +235,7 @@ export default function Funding() {
                       {formatFundingRate(row.data.next_funding)}
                     </td>
                     <td
-                      className={`px-5 py-3 text-right font-mono ${rateColor}`}
+                      className={`px-5 py-3 text-right font-mono tabular-nums ${rateColor}`}
                     >
                       {row.annualized >= 0 ? "+" : ""}
                       {row.annualized.toFixed(2)}%
@@ -245,10 +245,10 @@ export default function Funding() {
                         <IntensityBar funding={row.fundingNum} />
                       </div>
                     </td>
-                    <td className="px-5 py-3 text-right font-mono text-muted">
+                    <td className="px-5 py-3 text-right font-mono tabular-nums text-muted">
                       ${formatNumber(parseFloat(row.data.open_interest))}
                     </td>
-                    <td className="px-5 py-3 text-right font-mono text-muted">
+                    <td className="px-5 py-3 text-right font-mono tabular-nums text-muted">
                       ${formatNumber(parseFloat(row.data.volume_24h))}
                     </td>
                   </tr>

@@ -642,7 +642,7 @@ function InsightCard({ insight }: { insight: Insight }) {
 
   return (
     <div
-      className={`bg-card border border-border rounded-xl p-4 border-l-[3px] ${borderColor[insight.type]} hover:bg-card-hover transition-[background-color,box-shadow] duration-200 ease-out hover:shadow-card`}
+      className={`bg-card border border-border rounded-xl p-4 border-l-3 ${borderColor[insight.type]} hover:bg-card-hover transition-[background-color,box-shadow] duration-200 ease-out hover:shadow-card cursor-pointer`}
     >
       <div className="flex items-start gap-3">
         {/* Type Icon */}
@@ -896,24 +896,18 @@ export default function AiInsights() {
           </h2>
         </div>
 
-        <p className="text-muted text-lg leading-relaxed font-mono">
+        <p className="text-muted text-base leading-relaxed font-mono">
           {summary}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
           {/* Sentiment Gauge */}
-          <div className={`stat-card transition-[box-shadow] duration-500 ease-out ${
-            sentiment === "bullish"
-              ? "glow-green shadow-[0_0_12px_rgba(34,197,94,0.15),0_0_30px_rgba(34,197,94,0.08)]"
-              : sentiment === "bearish"
-                ? "glow-red shadow-[0_0_12px_rgba(239,68,68,0.15),0_0_30px_rgba(239,68,68,0.08)]"
-                : ""
-          }`}>
+          <div className="stat-card">
             <SentimentGauge sentiment={sentiment} />
           </div>
 
           {/* Signal Breakdown */}
-          <div className={`stat-card ${bullishCount > bearishCount ? "" : bearishCount > bullishCount ? "" : ""}`}>
+          <div className="stat-card">
             <p className="text-[10px] uppercase tracking-wider font-medium text-muted mb-3">
               Signal Breakdown
             </p>

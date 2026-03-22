@@ -11,8 +11,8 @@ interface FundingChartProps {
   symbol: string;
 }
 
-const MAX_POINTS = 100;
-const MIN_INTERVAL_MS = 10_000;
+const MAX_POINTS = 200;
+const MIN_INTERVAL_MS = 3_000;
 
 const COLORS = {
   line: "#3b82f6",
@@ -69,7 +69,7 @@ export default function FundingChart({ prices, symbol }: FundingChartProps) {
   const snapshots = snapshotsRef.current;
 
   // Collecting state -- not enough data yet
-  if (snapshots.length < 5) {
+  if (snapshots.length < 2) {
     return (
       <div
         className="w-full rounded-xl border border-border bg-card flex items-center justify-center"

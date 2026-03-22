@@ -26,12 +26,12 @@ export function TopBar() {
   const [firstWord, rest] = splitFirstWord(meta.title);
 
   return (
-    <header className="fixed top-0 left-16 right-0 h-14 z-40 flex items-center justify-between px-6 bg-bg/80 backdrop-blur-md border-b border-border">
+    <header className="fixed top-0 left-16 right-0 h-14 z-40 flex items-center justify-between px-6 glass border-b border-border">
       {/* Left: Page title + description */}
       <div className="flex items-center gap-3 min-w-0">
         <div className="min-w-0">
           <h1 className="text-sm font-bold text-fg leading-tight truncate">
-            <span className="gradient-text">{firstWord}</span>{rest}
+            <span className="gradient-text text-neon">{firstWord}</span>{rest}
           </h1>
           <p className="text-[11px] text-muted leading-tight truncate">{meta.description}</p>
         </div>
@@ -41,6 +41,7 @@ export function TopBar() {
       <div className="flex items-center">
         <WalletStatus />
       </div>
+      <div className="absolute bottom-0 left-0 right-0 divider-gradient" />
     </header>
   );
 }

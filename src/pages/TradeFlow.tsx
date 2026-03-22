@@ -188,7 +188,7 @@ function TradeRow({ trade, isNew }: { trade: Trade; isNew?: boolean }) {
 
   return (
     <div
-      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-[background-color] duration-150 hover:bg-card-hover ${isNew ? "trade-enter" : ""} ${
+      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-[background-color] duration-150 hover:bg-card-hover row-glow ${isNew ? "trade-enter" : ""} ${
         isWhale
           ? "border border-warn/40 bg-warn/5"
           : isLarge

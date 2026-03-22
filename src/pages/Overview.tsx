@@ -279,7 +279,7 @@ export default function Overview() {
   return (
     <div className="space-y-5 page-enter">
       {/* ---------- Stats bar ---------- */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 stagger-item">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 stagger-item">
         <StatCard
           label="24h Volume"
           value={`$${formatNumber(stats.totalVolume)}`}
@@ -343,7 +343,7 @@ export default function Overview() {
               role="tab"
               aria-selected={category === c}
               onClick={() => setCategory(c)}
-              className={`press-scale px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
+              className={`press-scale cursor-pointer px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
                 category === c
                   ? "bg-accent text-white scale-[1.02]"
                   : "bg-card text-muted hover:text-fg hover:bg-card-hover shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
@@ -373,13 +373,13 @@ export default function Overview() {
             placeholder="Search markets..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-card border border-border rounded-lg pl-9 pr-3 py-2 text-sm text-fg placeholder:text-muted focus:outline-none focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] transition-[border-color,box-shadow] duration-200 ease-out"
+            className="w-full bg-card border border-border rounded-lg pl-9 pr-3 py-2 text-sm text-fg placeholder:text-muted focus:outline-none focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] transition-all duration-200 ease-out"
           />
         </div>
       </div>
 
       {/* ---------- Table ---------- */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden shadow-card stagger-item">
+      <div className="bg-card rounded-xl border border-border overflow-hidden shadow-card shadow-[0_1px_3px_rgba(0,0,0,0.3)] stagger-item">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -427,7 +427,7 @@ export default function Overview() {
                 return (
                   <tr
                     key={r.symbol}
-                    className="border-b border-border/50 hover:bg-card-hover transition-[background-color] duration-150 ease-out group"
+                    className="border-b border-border/50 hover:bg-card-hover transition-[background-color] duration-150 ease-out group row-glow"
                   >
                     {/* Market */}
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -533,7 +533,7 @@ export default function Overview() {
       {/* ---------- Pacifica Attribution ---------- */}
       <div className="border-t border-border pt-4 pb-2 flex flex-col items-center gap-2 stagger-item">
         <p className="text-xs text-muted">
-          Powered by <span className="text-accent font-semibold">Pacifica API</span> | Real-time WebSocket data | 63+ perpetual markets
+          Powered by <span className="text-accent font-semibold text-neon">Pacifica API</span> | Real-time WebSocket data | 63+ perpetual markets
         </p>
         <span className="text-[10px] font-medium text-accent/80 bg-accent/10 px-2.5 py-1 rounded-full">
           Built for Pacifica Hackathon 2026
