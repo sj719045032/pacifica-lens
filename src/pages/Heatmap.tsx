@@ -236,7 +236,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
   index: "Indices",
 };
 
-const CATEGORY_ORDER: Category[] = ["crypto", "stock", "commodity", "forex", "index"];
+// const CATEGORY_ORDER: Category[] = ["crypto", "stock", "commodity", "forex", "index"];
 
 // ---------------------------------------------------------------------------
 // Toggle Button component
