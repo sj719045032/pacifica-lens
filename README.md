@@ -1,10 +1,10 @@
-# Pacifica Lens
+# Pacifica Analytics
 
 A real-time perpetuals analytics dashboard built on the Pacifica API, covering 63+ markets across crypto, stocks, commodities, forex, and indices.
 
 ## What is this?
 
-Pacifica Lens is a comprehensive analytics platform for perpetual futures traders on the Pacifica exchange. It transforms raw market data from 12+ Pacifica API endpoints into actionable intelligence across 11 specialized pages -- from funding rate arbitrage to whale copy trading to cross-asset correlation analysis. Every data point is live. Nothing is mocked.
+Pacifica Analytics is a comprehensive analytics platform for perpetual futures traders on the Pacifica exchange. It transforms raw market data from 12+ Pacifica API endpoints into actionable intelligence across 11 specialized pages -- from funding rate arbitrage to whale copy trading to cross-asset correlation analysis. Every data point is live. Nothing is mocked.
 
 Built for the **Pacifica 2026 Hackathon**, Track 2: Analytics & Data.
 

@@ -43,7 +43,7 @@ export function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-full w-16 bg-gradient-to-b from-card to-bg border-r border-border flex flex-col items-center py-4 z-50">
-      <NavLink to="/" className="mb-8 press-scale block" title="Pacifica Lens">
+      <NavLink to="/" className="mb-8 press-scale block" title="Pacifica Analytics">
         <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
           <defs>
             <linearGradient id="logo-accent" x1="0%" y1="0%" x2="100%" y2="100%">

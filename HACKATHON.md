@@ -186,7 +186,7 @@
 
 ---
 
-## Key Takeaways for Our Project (Pacifica Lens)
+## Key Takeaways for Our Project (Pacifica Analytics)
 
 ### Strengths:
 - [x] 11 feature pages (was 4 originally)

@@ -1,4 +1,4 @@
-# Pacifica Lens - Demo Video Recording Script
+# Pacifica Analytics - Demo Video Recording Script
 
 > Total Duration: ~6:20 | Language: Chinese (technical terms in English)
 > Format: Screen recording + voice narration | Resolution: 1920x1080
@@ -7,7 +7,7 @@
 
 ## Pre-Recording Checklist
 
-- [ ] Open Pacifica Lens in Chrome, full screen (F11)
+- [ ] Open Pacifica Analytics in Chrome, full screen (F11)
 - [ ] Confirm WebSocket connected (green "Live" dot visible)
 - [ ] Clear browser console, close dev tools
 - [ ] Test microphone, quiet environment
@@ -23,11 +23,11 @@
 
 ### Narration:
 
-> 大家好，我是 [你的名字]，这是我为 Pacifica 2026 Hackathon 开发的项目 -- Pacifica Lens。
+> 大家好，我是 [你的名字]，这是我为 Pacifica 2026 Hackathon 开发的项目 -- Pacifica Analytics。
 >
 > 我们先来看一个问题。Pacifica 目前有超过 63 个永续合约市场，覆盖 crypto、美股、大宗商品、外汇、指数等多个资产类别，这在 DeFi 领域是非常独特的。但是，交易员目前缺少一个专门为 Pacifica 设计的专业分析工具。
 >
-> 他们需要什么？实时的市场全景、funding rate 套利机会发现、鲸鱼追踪、orderbook 深度分析、资金流向监控。Pacifica Lens 就是为了解决这些问题而生的。
+> 他们需要什么？实时的市场全景、funding rate 套利机会发现、鲸鱼追踪、orderbook 深度分析、资金流向监控。Pacifica Analytics 就是为了解决这些问题而生的。
 
 ### Screen Action:
 - **0:00** - 画面已经是 Overview 页面，数据在实时更新
@@ -42,7 +42,7 @@
 
 ### Narration:
 
-> Pacifica Lens 是一个实时的永续合约分析平台，完全基于 Pacifica API 构建。
+> Pacifica Analytics 是一个实时的永续合约分析平台，完全基于 Pacifica API 构建。
 >
 > 整个产品有 11 个功能页面，深度集成了 12 个以上的 Pacifica API endpoint，包括 WebSocket 实时推送和 REST API。
 >
@@ -276,7 +276,7 @@
 
 ### Narration:
 
-> Cross-Market Correlation 是 Pacifica Lens 的独特功能。Pacifica 不仅有 crypto，还有美股、大宗商品、外汇、指数 -- 这意味着我们可以分析跨资产类别的相关性。
+> Cross-Market Correlation 是 Pacifica Analytics 的独特功能。Pacifica 不仅有 crypto，还有美股、大宗商品、外汇、指数 -- 这意味着我们可以分析跨资产类别的相关性。
 >
 > 这个页面展示了各市场之间的实时相关性矩阵。你可以看到 BTC 和美股（比如 NVDA、TSLA）之间的相关性，BTC 和黄金 XAU 的相关性，以及各 crypto 之间的相关性。颜色深浅代表相关性强弱。
 >
@@ -328,7 +328,7 @@
 
 ### Narration:
 
-> 交易员可以用 Pacifica Lens 做什么？
+> 交易员可以用 Pacifica Analytics 做什么？
 >
 > 第一，发现 funding rate 套利机会。Funding 页面直接告诉你哪些市场的 funding rate 异常，年化收益可以高达百分之几十甚至更高。
 >
@@ -338,7 +338,7 @@
 >
 > 第四，监控资金流向。Trade Flow 告诉你当前是 buyer dominant 还是 seller dominant，OI 在扩张还是收缩，有没有发生 liquidation。
 >
-> 为什么比现有工具更好？因为 Pacifica Lens 是 Pacifica 原生的。数据直接来自 Pacifica API，最准确、最实时、零延迟。而其他第三方工具要么不覆盖 Pacifica 这样的多资产 perp DEX，要么数据有延迟。
+> 为什么比现有工具更好？因为 Pacifica Analytics 是 Pacifica 原生的。数据直接来自 Pacifica API，最准确、最实时、零延迟。而其他第三方工具要么不覆盖 Pacifica 这样的多资产 perp DEX，要么数据有延迟。
 >
 > 目标用户就是 Pacifica 上的活跃交易员 -- 无论是手动交易还是做策略的。
 
@@ -366,7 +366,7 @@
 >
 > 第四，移动端适配 -- 让交易员可以随时随地监控市场。
 >
-> 感谢大家的时间。这就是 Pacifica Lens -- 一个为 Pacifica 交易员打造的实时分析平台。谢谢！
+> 感谢大家的时间。这就是 Pacifica Analytics -- 一个为 Pacifica 交易员打造的实时分析平台。谢谢！
 
 ### Screen Action:
 - **6:05** - 保持在 Overview 页面，数据继续实时更新
