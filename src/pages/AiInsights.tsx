@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
 import { LiveToggle } from "@/components/LiveBadge";
 import type { PriceData, MarketInfo } from "@/lib/types";
+import { createPortal } from "react-dom";
+import { hasElfaKey, getTrendingTokens, getTrendingNarratives, getTokenNews, getKeywordMentions, type TrendingToken, type TrendingNarrative, type TokenNews, type KeywordMention } from "@/lib/elfa";
 import {
   getCategory,
 
@@ -710,6 +712,71 @@ export default function AiInsights() {
 
   const analyzeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  /* ---- Elfa AI Social Sentiment ---- */
+  const [trendingTokens, setTrendingTokens] = useState<TrendingToken[]>([]);
+  const [narratives, setNarratives] = useState<TrendingNarrative[]>([]);
+  const [tokenNews, setTokenNews] = useState<TokenNews[]>([]);
+  const [elfaLoading, setElfaLoading] = useState(false);
+  const [newsSymbol, setNewsSymbol] = useState("BTC");
+  const [newsLoading, setNewsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<KeywordMention[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchAnchorRef = useRef<HTMLDivElement>(null);
+  const searchPanelRef = useRef<HTMLDivElement>(null);
+
+  // Close on click outside
+  useEffect(() => {
+    if (!searchOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (searchAnchorRef.current?.contains(e.target as Node)) return;
+      if (searchPanelRef.current?.contains(e.target as Node)) return;
+      setSearchOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [searchOpen]);
+
+  // Initial load: trending tokens + narratives
+  useEffect(() => {
+    if (!hasElfaKey()) return;
+    setElfaLoading(true);
+    Promise.all([
+      getTrendingTokens("24h", 12, 3),
+      getTrendingNarratives("24h"),
+    ]).then(([tokens, narr]) => {
+      setTrendingTokens(tokens);
+      setNarratives(narr);
+    }).finally(() => setElfaLoading(false));
+  }, []);
+
+  // All Pacifica symbols for dropdown
+  const allSymbols = useMemo(() => {
+    const syms = Object.keys(prices).map((s) => s.replace(/-PERP$/i, ""));
+    return syms.length > 0 ? syms : ["BTC", "ETH", "SOL"];
+  }, [prices]);
+
+  // News feed: reload when symbol changes
+  useEffect(() => {
+    if (!hasElfaKey()) return;
+    setNewsLoading(true);
+    getTokenNews(newsSymbol, "24h", 8)
+      .then(setTokenNews)
+      .finally(() => setNewsLoading(false));
+  }, [newsSymbol]);
+
+  // Keyword search
+  const handleSearch = useCallback(() => {
+    const q = searchQuery.trim();
+    if (!q || !hasElfaKey()) return;
+    setSearchLoading(true);
+    setSearchOpen(true);
+    getKeywordMentions(q, "24h", 8)
+      .then((results) => { setSearchResults(results); setSearchOpen(true); })
+      .finally(() => setSearchLoading(false));
+  }, [searchQuery]);
+
   /* Tick for "last analyzed" display */
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -877,6 +944,159 @@ export default function AiInsights() {
           </span>
         )}
       </div>
+
+      {/* ---- Social Intelligence (Elfa AI) ---- */}
+      {hasElfaKey() && !elfaLoading && (
+        <>
+          {/* Header + Search */}
+          <div className="flex items-center justify-between stagger-item">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-[#a78bfa]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+              </svg>
+              <h2 className="text-fg font-semibold text-sm uppercase tracking-wider">Social Intelligence</h2>
+              <span className="text-[10px] font-medium text-[#a78bfa]/80 bg-[#a78bfa]/10 px-2 py-0.5 rounded-full border border-[#a78bfa]/20">
+                Elfa AI
+              </span>
+            </div>
+            <div ref={searchAnchorRef} className="flex gap-2">
+              <input type="text" value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); if (!e.target.value.trim()) { setSearchResults([]); setSearchOpen(false); } }}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                placeholder="Search social mentions..."
+                className="w-64 bg-surface border border-border rounded-lg px-3 py-1.5 text-xs text-fg placeholder:text-muted/50 outline-none focus:border-[#a78bfa]" />
+              <button onClick={handleSearch} disabled={searchLoading || !searchQuery.trim()}
+                className="px-3 py-1.5 bg-[#a78bfa] hover:bg-[#8b5cf6] disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors">
+                {searchLoading ? "..." : "Search"}
+              </button>
+            </div>
+          </div>
+
+          {/* Search results floating panel via portal */}
+          {searchOpen && (searchLoading || searchResults.length > 0) && createPortal(
+            <div ref={searchPanelRef}
+              style={{
+                position: "fixed",
+                top: (searchAnchorRef.current?.getBoundingClientRect().bottom ?? 0) + 8,
+                right: window.innerWidth - (searchAnchorRef.current?.getBoundingClientRect().right ?? 0),
+              }}
+              className="w-[480px] max-h-[440px] overflow-y-auto z-[9999] bg-card rounded-xl border border-[#a78bfa]/30 shadow-2xl shadow-black/50 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs text-muted uppercase tracking-wider">
+                  {searchLoading ? "Searching..." : `${searchResults.length} results for "${searchQuery}"`}
+                </h3>
+                <button onClick={() => { setSearchOpen(false); setSearchResults([]); }}
+                  className="text-muted hover:text-fg text-sm leading-none px-1">✕</button>
+              </div>
+              {!searchLoading && (
+                <div className="space-y-1.5">
+                  {searchResults.map((m) => {
+                    const typeBg = m.type === "repost" ? "bg-yellow-500/20 text-yellow-400" : m.type === "note" ? "bg-blue-500/20 text-blue-400" : "bg-green-500/20 text-green-400";
+                    const typeLabel = m.type === "repost" ? "Repost" : m.type === "note" ? "Thread" : "Post";
+                    const stats = [
+                      m.likeCount && m.likeCount > 0 ? `${m.likeCount.toLocaleString()} likes` : null,
+                      m.repostCount && m.repostCount > 0 ? `${m.repostCount.toLocaleString()} reposts` : null,
+                      m.replyCount && m.replyCount > 0 ? `${m.replyCount.toLocaleString()} replies` : null,
+                      m.viewCount && m.viewCount > 0 ? `${(m.viewCount / 1000).toFixed(1)}K views` : null,
+                      m.bookmarkCount && m.bookmarkCount > 0 ? `${m.bookmarkCount.toLocaleString()} saved` : null,
+                    ].filter(Boolean);
+                    return (
+                      <a key={m.tweetId} href={m.link} target="_blank" rel="noopener noreferrer"
+                        className="block py-2.5 px-3 rounded-lg bg-surface/50 hover:bg-surface border border-transparent hover:border-border transition-all">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-accent">@{m.account?.username ?? "unknown"}</span>
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${typeBg}`}>{typeLabel}</span>
+                            {m.account?.isVerified && <span className="text-[9px] text-blue-400">✓</span>}
+                          </div>
+                          <span className="text-[10px] text-muted">{new Date(m.mentionedAt).toLocaleTimeString()}</span>
+                        </div>
+                        {stats.length > 0 && (
+                          <div className="flex gap-3 mt-1.5 flex-wrap">
+                            {stats.map((s, i) => <span key={i} className="text-[10px] text-muted">{s}</span>)}
+                          </div>
+                        )}
+                        <span className="text-[10px] text-[#a78bfa]/60 mt-1 inline-block">View on X →</span>
+                      </a>
+                    );
+                  })}
+                  {searchResults.length === 0 && <p className="text-muted text-xs py-2">No results found</p>}
+                </div>
+              )}
+            </div>,
+            document.body
+          )}
+
+          {/* 3-column grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 stagger-item">
+            {/* Col 1: Trending Narratives */}
+            <div className="bg-card rounded-xl border border-border p-4">
+              <h3 className="text-xs text-muted uppercase tracking-wider mb-3">Trending Narratives</h3>
+              <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                {narratives.slice(0, 8).map((n, i) => (
+                  <a key={i} href={n.source_links[0] ?? "#"} target="_blank" rel="noopener noreferrer"
+                    className="block py-2 px-3 rounded-lg bg-surface/50 hover:bg-surface border border-transparent hover:border-[#a78bfa]/20 transition-all">
+                    <p className="text-xs font-medium text-fg leading-relaxed">{n.narrative}</p>
+                    <p className="text-[10px] text-muted mt-1">{n.source_links.length} sources</p>
+                  </a>
+                ))}
+                {narratives.length === 0 && <p className="text-muted text-xs">No narratives</p>}
+              </div>
+            </div>
+
+            {/* Col 2: Social Buzz */}
+            <div className="bg-card rounded-xl border border-border p-4">
+              <h3 className="text-xs text-muted uppercase tracking-wider mb-3">Social Buzz (24h)</h3>
+              <div className="space-y-1 max-h-[400px] overflow-y-auto">
+                {trendingTokens.slice(0, 12).map((t, i) => (
+                  <div key={t.token} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-surface/50 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-muted w-4 text-right">{i + 1}</span>
+                      <span className="text-xs font-semibold text-fg uppercase">{t.token}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-muted">{t.current_count.toLocaleString()}</span>
+                      <span className={`text-[10px] font-mono w-12 text-right ${t.change_percent > 0 ? "text-up" : t.change_percent < 0 ? "text-down" : "text-muted"}`}>
+                        {t.change_percent > 0 ? "+" : ""}{t.change_percent.toFixed(0)}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {trendingTokens.length === 0 && <p className="text-muted text-xs">No data</p>}
+              </div>
+            </div>
+
+            {/* Col 3: News Feed */}
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs text-muted uppercase tracking-wider">News Feed</h3>
+                <select value={newsSymbol} onChange={(e) => setNewsSymbol(e.target.value)}
+                  className="bg-surface border border-border rounded px-2 py-0.5 text-[11px] text-fg outline-none focus:border-accent">
+                  {allSymbols.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
+                {newsLoading && <p className="text-muted text-xs py-2">Loading...</p>}
+                {!newsLoading && tokenNews.slice(0, 10).map((n) => (
+                  <a key={n.tweetId} href={n.link} target="_blank" rel="noopener noreferrer"
+                    className="block py-1.5 px-2 rounded-lg hover:bg-surface/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-accent">@{n.account?.username ?? "unknown"}</span>
+                      <span className="text-[10px] text-muted">{new Date(n.mentionedAt).toLocaleTimeString()}</span>
+                    </div>
+                    <div className="flex gap-2 mt-0.5">
+                      {n.likeCount != null && n.likeCount > 0 && <span className="text-[10px] text-muted">{n.likeCount.toLocaleString()} likes</span>}
+                      {n.repostCount != null && n.repostCount > 0 && <span className="text-[10px] text-muted">{n.repostCount.toLocaleString()} reposts</span>}
+                      {n.viewCount != null && n.viewCount > 0 && <span className="text-[10px] text-muted">{(n.viewCount / 1000).toFixed(1)}K views</span>}
+                    </div>
+                  </a>
+                ))}
+                {!newsLoading && tokenNews.length === 0 && <p className="text-muted text-xs">No news for {newsSymbol}</p>}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ---- Market Summary Card ---- */}
       <div className="bg-gradient-to-r from-[#10b981]/20 via-[#6366f1]/20 to-[#f43f5e]/20 rounded-xl p-[1px] stagger-item">

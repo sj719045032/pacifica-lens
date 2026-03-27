@@ -10,4 +10,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/elfa-api': {
+        target: 'https://api.elfa.ai',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/elfa-api/, ''),
+      },
+    },
+  },
 })

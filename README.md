@@ -88,7 +88,7 @@ Real-time taker trade analysis with buy/sell pressure metrics, open vs close rat
 Enter any Solana address or select from the top 10 whale quick-pick list to view a full account breakdown: equity, margin usage, available balance, current positions with live unrealized PnL, trade history with PnL per trade, and funding payment history. Supports Privy wallet connection so traders can analyze their own accounts directly. Trade pattern analysis identifies preferred pairs, hold times, and active trading sessions.
 
 **AI Market Intelligence** (`/ai-insights`) --
-An automated rule-based analysis engine that generates natural language insights from 12 signal types: funding rate anomalies, funding flips, volume surges, OI concentration, orderbook imbalance, whale activity clustering, cross-asset divergence, funding arbitrage opportunities, and more. Each insight includes a confidence level (high/medium/low), relevant signals, and actionable context. Auto-refreshes every 30 seconds, pulling from prices, leaderboard, orderbook, and market info endpoints simultaneously.
+An automated rule-based analysis engine that generates natural language insights from 12 signal types: funding rate anomalies, funding flips, volume surges, OI concentration, orderbook imbalance, whale activity clustering, cross-asset divergence, funding arbitrage opportunities, and more. Each insight includes a confidence level (high/medium/low), relevant signals, and actionable context. Auto-refreshes every 30 seconds, pulling from prices, leaderboard, orderbook, and market info endpoints simultaneously. Integrates **Elfa AI** for social intelligence: trending narratives, social buzz rankings, per-token news feed from crypto KOLs, and keyword search across social mentions.
 
 **Liquidation Monitor** (`/liquidations`) --
 Polls the trades endpoint every 5 seconds across the top 10 symbols by volume, filtering for liquidation events (`cause: "liquidation"`). Displays a real-time feed with mega-liquidation alerts (above $50K), a per-symbol liquidation heatmap with explosion-sized dots proportional to notional value, and a long/short liquidation ratio. Useful for identifying cascade risk and crowded positions.
@@ -116,6 +116,7 @@ Compares performance, volume, and funding across all five asset classes (crypto,
 ## Sponsor Integration
 
 - **Privy** (`@privy-io/react-auth`) -- Solana wallet connection for the Portfolio page, allowing traders to link their wallet and analyze their own account data directly.
+- **Elfa AI** (`elfa.ai`) -- Social intelligence integration on the AI Insights page. Provides trending narratives (AI-summarized market themes), social buzz rankings (token mention counts and trends), per-token news feed from crypto KOLs, and keyword search across social mentions. Uses 5 Elfa API endpoints: `trending-tokens`, `trending-narratives`, `token-news`, `keyword-mentions`, and `top-mentions`.
 
 ## Tech Stack
 
