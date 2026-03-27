@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
+import { LiveToggle } from "@/components/LiveBadge";
 import { formatPrice, formatNumber } from "@/lib/types";
 import type { PriceData } from "@/lib/types";
 
@@ -220,6 +221,7 @@ export default function Portfolio() {
   /* -- Loading state -- */
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   /* -- Leaderboard state -- */
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -359,18 +361,18 @@ export default function Portfolio() {
 
   /* ---- Auto-refresh positions every 30s ---- */
   useEffect(() => {
-    if (!activeAddr) return;
+    if (!activeAddr || !autoRefresh) return;
     const interval = setInterval(() => {
       fetchPositions(activeAddr).then(setPositions);
     }, 30_000);
     return () => clearInterval(interval);
-  }, [activeAddr]);
+  }, [activeAddr, autoRefresh]);
 
   /* ---- Render ---- */
   return (
     <div className="space-y-6 page-enter">
       {/* ---------- Address Input ---------- */}
-      <div className={`bg-card rounded-xl border border-border p-5 space-y-3 ${!activeAddr && !loading ? "mt-8 mb-4" : ""}`}>
+      <div className={`section-card p-5 space-y-3 ${!activeAddr && !loading ? "mt-8 mb-4" : ""}`}>
         {!activeAddr && !loading && (
           <p className="text-muted text-sm mb-2">
             Enter any Solana address to view positions, trade history, and funding payments
@@ -402,6 +404,7 @@ export default function Portfolio() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted">Top 10 whales — click to analyze:</span>
+            {activeAddr && <LiveToggle active={autoRefresh} onToggle={() => setAutoRefresh((p) => !p)} intervalSec={30} />}
           </div>
           {lbLoading ? (
             <div className="flex gap-3 overflow-x-auto pb-2">
@@ -495,18 +498,6 @@ export default function Portfolio() {
           <FundingHistorySection history={fundHistory} stats={fundingStats} />
 
           <TradePatternAnalysis history={posHistory} positions={positions} />
-
-          {/* ---------- Footer ---------- */}
-          <div className="border-t border-border pt-4 pb-2 flex flex-col items-center gap-2">
-            <p className="text-xs text-muted">
-              Powered by{" "}
-              <span className="text-accent font-semibold">Pacifica API</span> |
-              Real-time WebSocket + REST data
-            </p>
-            <span className="text-[10px] font-medium text-accent/80 bg-accent/10 px-2.5 py-1 rounded-full">
-              Built for Pacifica Hackathon 2026
-            </span>
-          </div>
         </>
       )}
     </div>
@@ -610,7 +601,7 @@ function PositionsTable({
 }) {
   if (positions.length === 0) {
     return (
-      <div className="bg-card rounded-xl border border-border p-8 text-center">
+      <div className="section-card p-8 text-center">
         <p className="text-muted text-sm">No open positions</p>
       </div>
     );
@@ -619,11 +610,11 @@ function PositionsTable({
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-fg">Current Positions</h2>
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="section-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm zebra-rows">
             <thead>
-              <tr className="border-b border-border">
+              <tr className="border-b border-border bg-bg/50">
                 {["Symbol", "Side", "Size", "Entry Price", "Current Price", "Unrealized PnL", "ROE %", "Liq Price"].map(
                   (label) => (
                     <th
@@ -739,7 +730,7 @@ function TradeHistory({
 }) {
   if (history.length === 0) {
     return (
-      <div className="bg-card rounded-xl border border-border p-8 text-center">
+      <div className="section-card p-8 text-center">
         <p className="text-muted text-sm">No trade history</p>
       </div>
     );
@@ -788,11 +779,11 @@ function TradeHistory({
       )}
 
       {/* Table */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="section-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm zebra-rows">
             <thead>
-              <tr className="border-b border-border">
+              <tr className="border-b border-border bg-bg/50">
                 {["Time", "Symbol", "Side", "Size", "Entry", "Exit", "PnL ($)", "PnL (%)"].map(
                   (label) => (
                     <th
@@ -888,7 +879,7 @@ function FundingHistorySection({
 }) {
   if (history.length === 0) {
     return (
-      <div className="bg-card rounded-xl border border-border p-8 text-center">
+      <div className="section-card p-8 text-center">
         <p className="text-muted text-sm">No funding history</p>
       </div>
     );
@@ -924,11 +915,11 @@ function FundingHistorySection({
       )}
 
       {/* Table */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="section-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm zebra-rows">
             <thead>
-              <tr className="border-b border-border">
+              <tr className="border-b border-border bg-bg/50">
                 {["Time", "Symbol", "Side", "Position Size", "Rate", "Payout"].map(
                   (label) => (
                     <th
@@ -1189,7 +1180,7 @@ function TradePatternAnalysis({
 
   if (insights.length === 0) {
     return (
-      <div className="bg-card rounded-xl border border-border p-8 text-center">
+      <div className="section-card p-8 text-center">
         <p className="text-muted text-sm">Not enough data for pattern analysis</p>
       </div>
     );
@@ -1226,7 +1217,7 @@ function TradePatternAnalysis({
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-fg">Trade Pattern Analysis</h2>
-      <div className="bg-card rounded-xl border border-border p-5">
+      <div className="section-card p-5">
         <div className="flex items-center gap-2 mb-4">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent">
             <path d="M12 2a4 4 0 014 4v1a1 1 0 001 1h1a4 4 0 010 8h-1a1 1 0 00-1 1v1a4 4 0 01-8 0v-1a1 1 0 00-1-1H6a4 4 0 010-8h1a1 1 0 001-1V6a4 4 0 014-4z" />

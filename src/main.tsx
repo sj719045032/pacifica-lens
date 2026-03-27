@@ -17,7 +17,7 @@ createRoot(document.getElementById("root")!).render(
       config={{
         appearance: {
           theme: "dark",
-          accentColor: "#3b82f6",
+          accentColor: "#6366f1",
           walletChainType: "solana-only",
         },
         loginMethods: ["wallet"],

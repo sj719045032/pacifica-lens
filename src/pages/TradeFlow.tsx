@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
+import { LiveToggle } from "@/components/LiveBadge";
 import type { MarketInfo } from "@/lib/types";
 import { formatNumber, formatPrice } from "@/lib/types";
 
@@ -167,11 +168,11 @@ function PressureBar({ buyPct, sellPct }: { buyPct: number; sellPct: number }) {
       </div>
       <div className="flex h-8 rounded-full overflow-hidden bg-border">
         <div
-          className="bg-[#22c55e] transition-all duration-500"
+          className="bg-[#10b981] transition-all duration-500"
           style={{ width: `${buyPct}%` }}
         />
         <div
-          className="bg-[#ef4444] transition-all duration-500"
+          className="bg-[#f43f5e] transition-all duration-500"
           style={{ width: `${sellPct}%` }}
         />
       </div>
@@ -194,7 +195,7 @@ function TradeRow({ trade, isNew }: { trade: Trade; isNew?: boolean }) {
           : isLarge
             ? "border border-border/80 bg-card-hover/40 border-l-2 border-l-[#eab308]"
             : ""
-      } ${isLiquidation ? "bg-[#ef4444]/5 animate-pulse" : ""}`}
+      } ${isLiquidation ? "bg-[#f43f5e]/5 animate-pulse" : ""}`}
     >
       {/* Time */}
       <span className="text-[11px] font-mono text-muted w-[60px] shrink-0">
@@ -204,7 +205,7 @@ function TradeRow({ trade, isNew }: { trade: Trade; isNew?: boolean }) {
       {/* Side badge */}
       <span
         className={`text-[10px] font-bold px-1.5 py-0.5 rounded w-[46px] text-center shrink-0 ${
-          isLong ? "bg-[#22c55e]/15 text-up" : "bg-[#ef4444]/15 text-down"
+          isLong ? "bg-[#10b981]/15 text-up" : "bg-[#f43f5e]/15 text-down"
         }`}
       >
         {direction}
@@ -257,8 +258,8 @@ function LargeTradeAlert({ trade, symbol }: { trade: Trade; symbol: string }) {
         isLiquidation
           ? "border-warn/50 bg-warn/5"
           : isLong
-            ? "border-[#22c55e]/30 bg-[#22c55e]/5"
-            : "border-[#ef4444]/30 bg-[#ef4444]/5"
+            ? "border-[#10b981]/30 bg-[#10b981]/5"
+            : "border-[#f43f5e]/30 bg-[#f43f5e]/5"
       }`}
     >
       {/* Whale icon */}
@@ -275,7 +276,7 @@ function LargeTradeAlert({ trade, symbol }: { trade: Trade; symbol: string }) {
           <span className="font-mono font-bold text-fg text-sm">{symbol}</span>
           <span
             className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-              isLong ? "bg-[#22c55e]/15 text-up" : "bg-[#ef4444]/15 text-down"
+              isLong ? "bg-[#10b981]/15 text-up" : "bg-[#f43f5e]/15 text-down"
             }`}
           >
             {direction}
@@ -422,24 +423,7 @@ export default function TradeFlow() {
           )}
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Auto-refresh toggle */}
-          <button
-            onClick={() => setAutoRefresh((p) => !p)}
-            className={`press-scale flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-all duration-200 ${
-              autoRefresh
-                ? "border-[#22c55e]/30 bg-[#22c55e]/10 text-up shadow-[0_0_8px_rgba(34,197,94,0.15)]"
-                : "border-border bg-card text-muted hover:text-fg hover:border-border/80"
-            }`}
-          >
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                autoRefresh ? "bg-[#22c55e] live-pulse" : "bg-muted"
-              }`}
-            />
-            {autoRefresh ? "LIVE" : "PAUSED"}
-          </button>
-        </div>
+        <LiveToggle active={autoRefresh} onToggle={() => setAutoRefresh((p) => !p)} intervalSec={3} />
       </div>
 
       {/* ---------- Symbol Selector ---------- */}
@@ -447,7 +431,7 @@ export default function TradeFlow() {
         <select
           value={selectedSymbol}
           onChange={(e) => setSelectedSymbol(e.target.value)}
-          className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-fg font-mono focus:outline-none focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] transition-[border-color,box-shadow] duration-200 cursor-pointer"
+          className="form-select text-sm"
         >
           {symbols.length > 0
             ? symbols.map((s) => (
@@ -544,8 +528,8 @@ export default function TradeFlow() {
       {/* ---------- Main content: Timeline + Aggregate ---------- */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Trade Flow Timeline */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+        <div className="lg:col-span-2 section-card">
+          <div className="section-header !py-3">
             <h2 className="text-fg font-semibold text-sm">Trade Flow Timeline</h2>
             <span className="text-[10px] text-muted font-mono">Taker fills only</span>
           </div>
@@ -658,18 +642,6 @@ export default function TradeFlow() {
             })()}
           </div>
         </div>
-      </div>
-
-      {/* ---------- Footer ---------- */}
-      <div className="border-t border-border pt-3 flex items-center justify-between text-[10px] text-muted">
-        <span>
-          Data sourced from{" "}
-          <span className="text-accent font-medium">Pacifica REST API</span>
-          {" "}| Taker fills, {trades.length} trades
-        </span>
-        <span className="font-mono">
-          {autoRefresh ? "Auto-refresh 3s" : "Refresh paused"}
-        </span>
       </div>
     </div>
   );

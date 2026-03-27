@@ -198,10 +198,10 @@ function TraderDetail({
 
       {/* Positions table */}
       {positions && positions.length > 0 ? (
-        <div className="bg-bg rounded-xl border border-border overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="section-card overflow-x-auto">
+          <table className="w-full text-sm zebra-rows">
             <thead>
-              <tr className="text-muted text-xs uppercase tracking-wider border-b border-border">
+              <tr className="text-muted text-xs uppercase tracking-wider border-b border-border bg-bg/50">
                 <th className="text-left px-4 py-2.5 font-medium">Symbol</th>
                 <th className="text-left px-4 py-2.5 font-medium">Side</th>
                 <th className="text-right px-4 py-2.5 font-medium">Size</th>
@@ -245,8 +245,8 @@ function TraderDetail({
                       <span
                         className={`text-xs font-semibold px-2 py-0.5 rounded ${
                           pos.side.toLowerCase() === "bid"
-                            ? "bg-[#22c55e]/10 text-up"
-                            : "bg-[#ef4444]/10 text-down"
+                            ? "bg-[#10b981]/10 text-up"
+                            : "bg-[#f43f5e]/10 text-down"
                         }`}
                       >
                         {pos.side.toLowerCase() === "bid" ? "LONG" : "SHORT"}
@@ -319,7 +319,7 @@ function SentimentBar({
       <div className="flex-1 flex h-5 rounded overflow-hidden bg-border">
         {longPct > 0 && (
           <div
-            className="bg-[#22c55e] transition-all duration-500 ease-out flex items-center justify-center"
+            className="bg-[#10b981] transition-all duration-500 ease-out flex items-center justify-center"
             style={{ width: `${longPct}%` }}
           >
             {longPct >= 20 && (
@@ -331,7 +331,7 @@ function SentimentBar({
         )}
         {shortPct > 0 && (
           <div
-            className="bg-[#ef4444] transition-all duration-500 ease-out flex items-center justify-center"
+            className="bg-[#f43f5e] transition-all duration-500 ease-out flex items-center justify-center"
             style={{ width: `${shortPct}%` }}
           >
             {shortPct >= 20 && (
@@ -540,8 +540,8 @@ export default function Whales() {
   return (
     <div className="space-y-6 page-enter">
       {/* Leaderboard */}
-      <section className="bg-card rounded-xl border border-border overflow-hidden">
-        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+      <section className="section-card">
+        <div className="section-header">
           <h2 className="text-fg font-semibold">
             Top Traders{" "}
             <span className="text-muted font-normal text-sm">
@@ -554,9 +554,9 @@ export default function Whales() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm zebra-rows">
             <thead>
-              <tr className="text-muted text-xs uppercase tracking-wider border-b border-border">
+              <tr className="text-muted text-xs uppercase tracking-wider border-b border-border bg-bg/50">
                 {/* Rank + address header (combined, non-sortable for address) */}
                 <th
                   onClick={() => handleSort("rank")}
@@ -728,7 +728,7 @@ export default function Whales() {
       </section>
 
       {/* Whale Sentiment */}
-      <section className="bg-card rounded-xl border border-border p-5">
+      <section className="section-card p-5">
         <div className="mb-4">
           <h2 className="text-fg font-semibold">Aggregate <span className="gradient-text">Whale Sentiment</span></h2>
           <p className="text-xs text-muted mt-1">
@@ -755,11 +755,11 @@ export default function Whales() {
             {/* Legend */}
             <div className="flex items-center gap-4 mb-3 text-xs">
               <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-sm bg-[#22c55e]" />
+                <span className="w-3 h-3 rounded-sm bg-[#10b981]" />
                 <span className="text-muted">Long</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-sm bg-[#ef4444]" />
+                <span className="w-3 h-3 rounded-sm bg-[#f43f5e]" />
                 <span className="text-muted">Short</span>
               </span>
             </div>

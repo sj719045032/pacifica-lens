@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
+import { LiveToggle } from "@/components/LiveBadge";
 import { type MarketInfo, formatPrice, formatNumber } from "@/lib/types";
 
 /* ------------------------------------------------------------------ */
@@ -131,7 +132,7 @@ function ImbalanceBar({ ratio }: { ratio: number }) {
             style={{
               width: `${pct}%`,
               background:
-                "linear-gradient(90deg, #22c55e 0%, #22c55e88 100%)",
+                "linear-gradient(90deg, #10b981 0%, #10b98188 100%)",
             }}
           />
           {/* Center tick */}
@@ -176,7 +177,7 @@ function DepthChart({
   const highestAsk = askSlice.length > 0 ? askSlice[askSlice.length - 1].price : midPrice;
 
   return (
-    <div className="bg-card rounded-xl border border-border p-4">
+    <div className="section-card p-4">
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-medium text-muted uppercase tracking-wider">
           Depth Chart
@@ -296,8 +297,8 @@ function OrderbookTable({
   const displayCount = Math.min(20, Math.max(bids.length, asks.length));
 
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden">
-      <div className="px-4 py-3 border-b border-border">
+    <div className="section-card">
+      <div className="section-header !py-3">
         <span className="text-xs font-medium text-muted uppercase tracking-wider">
           Order Book
         </span>
@@ -453,12 +454,12 @@ function Spinner() {
         ))}
       </div>
       {/* Depth chart skeleton */}
-      <div className="bg-card rounded-xl border border-border p-4">
+      <div className="section-card p-4">
         <div className="skeleton h-3 w-24 mb-4" />
         <div className="skeleton h-48 w-full rounded-lg" />
       </div>
       {/* Orderbook table skeleton */}
-      <div className="bg-card rounded-xl border border-border p-4">
+      <div className="section-card p-4">
         <div className="skeleton h-3 w-20 mb-4" />
         <div className="grid grid-cols-2 gap-4">
           {[0, 1].map((side) => (
@@ -489,6 +490,7 @@ export default function Orderbook() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<number>(0);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -499,9 +501,10 @@ export default function Orderbook() {
     async function fetchInfo() {
       try {
         const res = await fetch(`${API_BASE}/info`);
-        const data: MarketInfo[] = await res.json();
+        const json = await res.json();
         if (cancelled) return;
-        const syms = data.map((m) => m.symbol).sort();
+        const list: MarketInfo[] = json.success && Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : [];
+        const syms = list.map((m) => m.symbol).sort();
         setSymbols(syms);
       } catch {
         // silently fail, user can still manually type
@@ -545,15 +548,17 @@ export default function Orderbook() {
     setBookRaw(null);
     fetchBook(symbol);
 
-    intervalRef.current = setInterval(() => {
-      fetchBook(symbol);
-    }, REFRESH_MS);
+    if (autoRefresh) {
+      intervalRef.current = setInterval(() => {
+        fetchBook(symbol);
+      }, REFRESH_MS);
+    }
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
       abortRef.current?.abort();
     };
-  }, [symbol, fetchBook]);
+  }, [symbol, fetchBook, autoRefresh]);
 
   /* ---- Process orderbook data ---- */
   const { bids, asks, metrics } = useMemo(() => {
@@ -654,7 +659,7 @@ export default function Orderbook() {
           <select
             value={symbol}
             onChange={(e) => setSymbol(e.target.value)}
-            className="bg-card border border-border rounded-lg px-3 py-2 text-sm font-semibold text-fg outline-none focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] transition-[border-color,box-shadow] duration-200 cursor-pointer appearance-none min-w-[120px]"
+            className="form-select text-sm font-semibold min-w-[120px]"
           >
             {symbols.length > 0
               ? symbols.map((s) => (
@@ -675,20 +680,12 @@ export default function Orderbook() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Last refresh — pulsing countdown */}
-          <span className={`text-xs font-mono transition-colors duration-300 ${
+          <span className={`text-[11px] font-mono transition-colors duration-300 ${
             secAgo <= 1 ? "text-accent" : "text-muted"
           }`}>
             {secAgo}s ago
           </span>
-          <div className="w-px h-4 bg-border" />
-          {/* Refresh dot */}
-          <div className="relative flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent live-pulse" />
-            <span className="text-xs text-muted">
-              {REFRESH_MS / 1000}s refresh
-            </span>
-          </div>
+          <LiveToggle active={autoRefresh} onToggle={() => setAutoRefresh((p) => !p)} intervalSec={REFRESH_MS / 1000} />
         </div>
       </div>
 
@@ -716,14 +713,14 @@ export default function Orderbook() {
               value={`$${formatNumber(metrics.totalBidDepth)}`}
               sub={`${bids.length} levels`}
               color="up"
-              className="border-l-2 border-l-[#22c55e]"
+              className="border-l-2 border-l-[#10b981]"
             />
             <MetricCard
               label="Total Ask Depth"
               value={`$${formatNumber(metrics.totalAskDepth)}`}
               sub={`${asks.length} levels`}
               color="down"
-              className="border-l-2 border-l-[#ef4444]"
+              className="border-l-2 border-l-[#f43f5e]"
             />
             <MetricCard
               label="Largest Bid Wall"

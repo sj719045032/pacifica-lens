@@ -58,19 +58,17 @@ function colorForValue(value: number, metric: ColorMetric): string {
   const clamped = Math.max(-maxMag, Math.min(maxMag, value));
   const t = Math.abs(clamped) / maxMag; // 0..1
 
-  // Base color (dark bg): rgb(20, 24, 32)
-  // Interpolate toward vivid green or red for high intensity
+  // Base color (dark bg): rgb(17, 19, 24)
+  // Interpolate toward emerald or rose for high intensity
   if (value >= 0) {
-    // Interpolate from dark base toward rgb(34, 197, 94) (vivid green)
-    const r = Math.round(20 + t * (34 - 20));
-    const g = Math.round(24 + t * (197 - 24));
-    const b = Math.round(32 + t * (94 - 32));
+    const r = Math.round(17 + t * (16 - 17));
+    const g = Math.round(19 + t * (185 - 19));
+    const b = Math.round(24 + t * (129 - 24));
     return `rgb(${r}, ${g}, ${b})`;
   }
-  // Interpolate from dark base toward rgb(239, 68, 68) (vivid red)
-  const r = Math.round(20 + t * (239 - 20));
-  const g = Math.round(24 + t * (68 - 24));
-  const b = Math.round(32 + t * (68 - 32));
+  const r = Math.round(17 + t * (244 - 17));
+  const g = Math.round(19 + t * (63 - 19));
+  const b = Math.round(24 + t * (94 - 24));
   return `rgb(${r}, ${g}, ${b})`;
 }
 
@@ -80,9 +78,9 @@ function borderForValue(value: number, metric: ColorMetric): string {
   const t = Math.abs(clamped) / maxMag;
 
   if (value >= 0) {
-    return `rgba(34, 197, 94, ${0.15 + t * 0.4})`;
+    return `rgba(16, 185, 129, ${0.15 + t * 0.4})`;
   }
-  return `rgba(239, 68, 68, ${0.15 + t * 0.4})`;
+  return `rgba(244, 63, 94, ${0.15 + t * 0.4})`;
 }
 
 // ---------------------------------------------------------------------------
@@ -690,7 +688,7 @@ export default function Heatmap() {
       {/* Treemap Container */}
       <div
         ref={setContainerRef}
-        className="flex-1 relative rounded-xl bg-card border border-border overflow-hidden min-h-0"
+        className="flex-1 relative section-card min-h-0"
         onMouseMove={handleMouseMove}
       >
         {count === 0 ? (

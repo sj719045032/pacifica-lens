@@ -142,10 +142,11 @@ export default function Screener() {
     async function fetchInfo() {
       try {
         const res = await fetch("https://api.pacifica.fi/api/v1/info");
-        const data: MarketInfo[] = await res.json();
+        const json = await res.json();
         if (cancelled) return;
+        const list: MarketInfo[] = json.success && Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : [];
         const map: Record<string, MarketInfo> = {};
-        for (const m of data) {
+        for (const m of list) {
           map[m.symbol] = m;
         }
         setMarketInfo(map);
@@ -305,20 +306,20 @@ export default function Screener() {
           <button
             key={p.key}
             onClick={() => handlePreset(p.key)}
-            className={`rounded-xl p-4 text-left transition-colors border ${
+            className={`press-scale stat-card !p-4 text-left cursor-pointer transition-all duration-200 ${
               activePreset === p.key
-                ? "bg-accent/15 border-accent text-accent"
-                : "bg-card border-border hover:bg-card-hover text-fg"
+                ? "!border-accent/40 bg-accent/10 shadow-[0_0_12px_rgba(59,130,246,0.15)]"
+                : ""
             }`}
           >
-            <div className="text-sm font-semibold">{p.label}</div>
-            <div className="text-xs text-muted mt-1">{p.desc}</div>
+            <div className={`text-sm font-semibold ${activePreset === p.key ? "text-accent" : "text-fg"}`}>{p.label}</div>
+            <div className="text-[11px] text-muted mt-1">{p.desc}</div>
           </button>
         ))}
       </div>
 
       {/* Custom filters */}
-      <div className="bg-card rounded-xl border border-border p-4">
+      <div className="section-card p-4">
         <div className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">
           Custom Filters
         </div>
@@ -332,7 +333,7 @@ export default function Screener() {
                 setCategory(e.target.value as CategoryFilter);
                 setActivePreset(null);
               }}
-              className="w-full bg-card border border-border rounded-lg px-3 py-1.5 text-sm text-fg outline-none focus:border-accent"
+              className="w-full form-select text-sm"
             >
               {CATEGORY_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -353,7 +354,7 @@ export default function Screener() {
                 setMinFunding(e.target.value);
                 setActivePreset(null);
               }}
-              className="w-full bg-card border border-border rounded-lg px-3 py-1.5 text-sm text-fg outline-none focus:border-accent font-mono"
+              className="w-full form-input text-sm"
             />
           </div>
 
@@ -368,7 +369,7 @@ export default function Screener() {
                 setMaxFunding(e.target.value);
                 setActivePreset(null);
               }}
-              className="w-full bg-card border border-border rounded-lg px-3 py-1.5 text-sm text-fg outline-none focus:border-accent font-mono"
+              className="w-full form-input text-sm"
             />
           </div>
 
@@ -383,7 +384,7 @@ export default function Screener() {
                 setMinVolume(e.target.value);
                 setActivePreset(null);
               }}
-              className="w-full bg-card border border-border rounded-lg px-3 py-1.5 text-sm text-fg outline-none focus:border-accent font-mono"
+              className="w-full form-input text-sm"
             />
           </div>
 
@@ -398,7 +399,7 @@ export default function Screener() {
                 setMinLeverage(e.target.value);
                 setActivePreset(null);
               }}
-              className="w-full bg-card border border-border rounded-lg px-3 py-1.5 text-sm text-fg outline-none focus:border-accent font-mono"
+              className="w-full form-input text-sm"
             />
           </div>
 
@@ -413,7 +414,7 @@ export default function Screener() {
                 setMaxLeverage(e.target.value);
                 setActivePreset(null);
               }}
-              className="w-full bg-card border border-border rounded-lg px-3 py-1.5 text-sm text-fg outline-none focus:border-accent font-mono"
+              className="w-full form-input text-sm"
             />
           </div>
         </div>
@@ -427,10 +428,10 @@ export default function Screener() {
       </div>
 
       {/* Results table */}
-      <div className="bg-card rounded-xl border border-border overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="section-card overflow-x-auto">
+        <table className="w-full text-sm zebra-rows">
           <thead>
-            <tr className="border-b border-border">
+            <tr className="border-b border-border bg-bg/50">
               {COLUMNS.map((col) => (
                 <th
                   key={col.key}

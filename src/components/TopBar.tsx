@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { WalletStatus } from "./WalletButton";
+import { LiveIndicator } from "./LiveBadge";
 
 const PAGE_META: Record<string, { title: string; description: string }> = {
   "/": { title: "Market Overview", description: "Real-time perpetuals analytics" },
@@ -28,15 +29,20 @@ export function TopBar() {
   const [firstWord, rest] = splitFirstWord(meta.title);
 
   return (
-    <header className="fixed top-0 left-16 right-0 h-14 z-40 flex items-center justify-between px-6 glass border-b border-border">
+    <header className="fixed top-0 left-16 right-0 h-14 z-40 flex items-center justify-between px-6 glass border-b border-border/40">
       {/* Left: Page title + description */}
       <div className="flex items-center gap-3 min-w-0">
         <div className="min-w-0">
-          <h1 className="text-sm font-bold text-fg leading-tight truncate">
+          <h1 className="text-[15px] font-bold text-fg leading-tight truncate tracking-tight">
             <span className="gradient-text text-neon">{firstWord}</span>{rest}
           </h1>
-          <p className="text-[11px] text-muted leading-tight truncate">{meta.description}</p>
+          <p className="text-[11px] text-muted/70 leading-tight truncate font-light tracking-wide">{meta.description}</p>
         </div>
+      </div>
+
+      {/* Center: Live indicator */}
+      <div className="hidden md:block">
+        <LiveIndicator />
       </div>
 
       {/* Right: Wallet */}

@@ -63,11 +63,11 @@ function changePct(p: PriceData): number {
 
 function categoryBadge(cat: ReturnType<typeof getCategory>) {
   const colors: Record<string, string> = {
-    crypto: "bg-accent/15 text-accent",
-    stock: "bg-up/15 text-up",
-    commodity: "bg-warn/15 text-warn",
-    forex: "bg-purple-500/15 text-purple-400",
-    index: "bg-cyan-500/15 text-cyan-400",
+    crypto: "bg-accent/12 text-accent border-accent/20",
+    stock: "bg-up/12 text-up border-up/20",
+    commodity: "bg-warn/12 text-warn border-warn/20",
+    forex: "bg-purple-500/12 text-purple-400 border-purple-400/20",
+    index: "bg-cyan-500/12 text-cyan-400 border-cyan-400/20",
   };
   const labels: Record<string, string> = {
     crypto: "Crypto",
@@ -78,7 +78,7 @@ function categoryBadge(cat: ReturnType<typeof getCategory>) {
   };
   return (
     <span
-      className={`ml-2 px-1.5 py-0.5 text-[10px] font-medium rounded ${colors[cat] ?? "bg-muted/15 text-muted"}`}
+      className={`badge ml-2 border ${colors[cat] ?? "bg-muted/12 text-muted border-muted/20"}`}
     >
       {labels[cat] ?? cat}
     </span>
@@ -254,7 +254,7 @@ export default function Overview() {
           <div className="ml-auto skeleton h-9 w-64 rounded-lg" />
         </div>
         {/* Table skeleton */}
-        <div className="bg-card rounded-xl border border-border overflow-hidden shadow-card">
+        <div className="section-card shadow-card">
           <div className="p-4 space-y-3">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="flex items-center gap-4" style={{ animationDelay: `${i * 60}ms` }}>
@@ -373,17 +373,17 @@ export default function Overview() {
             placeholder="Search markets..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-card border border-border rounded-lg pl-9 pr-3 py-2 text-sm text-fg placeholder:text-muted focus:outline-none focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] transition-all duration-200 ease-out"
+            className="w-full form-input text-sm !pl-9 !rounded-lg"
           />
         </div>
       </div>
 
       {/* ---------- Table ---------- */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden shadow-card shadow-[0_1px_3px_rgba(0,0,0,0.3)] stagger-item">
+      <div className="section-card shadow-card stagger-item">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm zebra-rows">
             <thead>
-              <tr className="border-b-2 border-border">
+              <tr className="border-b border-border bg-bg/50">
                 {COLUMNS.map((col) => (
                   <th
                     key={col.key}
@@ -530,15 +530,6 @@ export default function Overview() {
         {!infoLoaded && " \u00b7 Loading leverage data..."}
       </p>
 
-      {/* ---------- Pacifica Attribution ---------- */}
-      <div className="border-t border-border pt-4 pb-2 flex flex-col items-center gap-2 stagger-item">
-        <p className="text-xs text-muted">
-          Powered by <span className="text-accent font-semibold text-neon">Pacifica API</span> | Real-time WebSocket data | 63+ perpetual markets
-        </p>
-        <span className="text-[10px] font-medium text-accent/80 bg-accent/10 px-2.5 py-1 rounded-full">
-          Built for Pacifica Hackathon 2026
-        </span>
-      </div>
     </div>
   );
 }

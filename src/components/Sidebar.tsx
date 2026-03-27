@@ -42,21 +42,21 @@ export function Sidebar() {
   }, [location.pathname, updateBar]);
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-16 bg-gradient-to-b from-card to-bg border-r border-border flex flex-col items-center py-4 z-50">
+    <aside className="fixed left-0 top-0 h-full w-16 bg-gradient-to-b from-card via-card/90 to-bg/70 border-r border-border/30 flex flex-col items-center py-4 z-50">
       <NavLink to="/" className="mb-8 press-scale block" title="Pacifica Analytics">
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+        <svg width="42" height="42" viewBox="0 0 32 32" fill="none">
           <defs>
             <linearGradient id="logo-accent" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3b82f6"/>
-              <stop offset="100%" stopColor="#8b5cf6"/>
+              <stop offset="0%" stopColor="#818cf8"/>
+              <stop offset="100%" stopColor="#a78bfa"/>
             </linearGradient>
           </defs>
-          <circle cx="16" cy="16" r="8" stroke="url(#logo-accent)" strokeWidth="2"/>
-          <circle cx="16" cy="16" r="3" fill="url(#logo-accent)" opacity="0.9"/>
-          <line x1="16" y1="5" x2="16" y2="10" stroke="url(#logo-accent)" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
-          <line x1="16" y1="22" x2="16" y2="27" stroke="url(#logo-accent)" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
-          <line x1="5" y1="16" x2="10" y2="16" stroke="url(#logo-accent)" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
-          <line x1="22" y1="16" x2="27" y2="16" stroke="url(#logo-accent)" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+          <circle cx="16" cy="16" r="8" stroke="url(#logo-accent)" strokeWidth="2.2"/>
+          <circle cx="16" cy="16" r="3.5" fill="url(#logo-accent)"/>
+          <line x1="16" y1="4" x2="16" y2="9.5" stroke="url(#logo-accent)" strokeWidth="1.8" strokeLinecap="round" opacity="0.8"/>
+          <line x1="16" y1="22.5" x2="16" y2="28" stroke="url(#logo-accent)" strokeWidth="1.8" strokeLinecap="round" opacity="0.8"/>
+          <line x1="4" y1="16" x2="9.5" y2="16" stroke="url(#logo-accent)" strokeWidth="1.8" strokeLinecap="round" opacity="0.8"/>
+          <line x1="22.5" y1="16" x2="28" y2="16" stroke="url(#logo-accent)" strokeWidth="1.8" strokeLinecap="round" opacity="0.8"/>
         </svg>
       </NavLink>
       <nav ref={navRef} className="relative flex flex-col gap-1.5">
@@ -69,14 +69,14 @@ export function Sidebar() {
             <NavLink
               to={n.to}
               end={n.to === "/"}
-              title={n.label}
               className={({ isActive }) =>
-                `nav-link relative p-3 rounded-lg block ${
+                `nav-link nav-tooltip relative p-3 rounded-lg block ${
                   isActive
                     ? "bg-accent/15 text-accent shadow-[inset_0_0_0_1px_rgba(59,130,246,0.2)]"
                     : "text-muted hover:text-fg hover:bg-card-hover"
                 }`
               }
+              data-tooltip={n.label}
             >
               {({ isActive }) => (
                 <svg

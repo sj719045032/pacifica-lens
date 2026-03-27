@@ -34,11 +34,11 @@ function OpportunityCard({
   className?: string;
 }) {
   const colorClass = kind === "long" ? "text-up" : "text-down";
-  const tagBg = kind === "long" ? "bg-[#22c55e]/10" : "bg-[#ef4444]/10";
+  const tagBg = kind === "long" ? "bg-[#10b981]/10" : "bg-[#f43f5e]/10";
   const tagText = kind === "long" ? "text-up" : "text-down";
 
   return (
-    <div className={`bg-card rounded-xl border border-border p-5 flex-1 min-w-[340px] ${kind === "long" ? "border-t-2 border-t-[#22c55e]/50" : "border-t-2 border-t-[#ef4444]/50"} ${className ?? ""}`}>
+    <div className={`section-card p-5 flex-1 min-w-[340px] ${kind === "long" ? "border-t-2 border-t-[#10b981]/50" : "border-t-2 border-t-[#f43f5e]/50"} ${className ?? ""}`}>
       <div className="flex items-center gap-2 mb-4">
         <span className={`text-sm font-medium px-2 py-0.5 rounded ${tagBg} ${tagText}`}>
           {kind === "long" ? "LONG" : "SHORT"}
@@ -74,7 +74,7 @@ function OpportunityCard({
 function IntensityBar({ funding }: { funding: number }) {
   const absFunding = Math.abs(funding);
   const widthPct = Math.min((absFunding / 0.001) * 100, 100);
-  const barColor = funding >= 0 ? "bg-[#22c55e]" : "bg-[#ef4444]";
+  const barColor = funding >= 0 ? "bg-[#10b981]" : "bg-[#f43f5e]";
 
   return (
     <div className="w-24 h-2 rounded-full bg-border overflow-hidden">
@@ -162,7 +162,7 @@ export default function Funding() {
             <select
               value={activeSymbol}
               onChange={(e) => setChartSymbol(e.target.value)}
-              className="bg-card border border-border rounded-lg px-3 py-1.5 text-sm text-fg font-mono focus:outline-none focus:border-[#3b82f6] transition-colors duration-150 cursor-pointer"
+              className="form-select text-sm"
             >
               {allSymbols.map((s) => (
                 <option key={s} value={s}>
@@ -178,8 +178,8 @@ export default function Funding() {
       </section>
 
       {/* Full Markets Table */}
-      <section className="bg-card rounded-xl border border-border overflow-hidden">
-        <div className="px-5 py-4 border-b border-border">
+      <section className="section-card">
+        <div className="section-header">
           <h2 className="text-fg font-semibold">
             All Markets{" "}
             <span className="text-muted font-normal text-sm">
@@ -188,9 +188,9 @@ export default function Funding() {
           </h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm zebra-rows">
             <thead>
-              <tr className="text-muted text-xs uppercase tracking-wider border-b border-border">
+              <tr className="text-muted text-xs uppercase tracking-wider border-b border-border bg-bg/50">
                 <th className="text-left px-5 py-3 font-medium">Symbol</th>
                 <th className="text-right px-5 py-3 font-medium">
                   Funding (1h)

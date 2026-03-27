@@ -15,11 +15,11 @@ const MAX_POINTS = 200;
 const MIN_INTERVAL_MS = 3_000;
 
 const COLORS = {
-  line: "#3b82f6",
-  posFill: "rgba(34, 197, 94, 0.1)",
-  negFill: "rgba(239, 68, 68, 0.1)",
-  grid: "rgba(30, 36, 48, 0.5)",
-  zero: "#6b7280",
+  line: "#818cf8",
+  posFill: "rgba(16, 185, 129, 0.1)",
+  negFill: "rgba(244, 63, 94, 0.1)",
+  grid: "rgba(28, 31, 40, 0.5)",
+  zero: "#5c6370",
 } as const;
 
 function formatTime(ts: number): string {
@@ -72,13 +72,15 @@ export default function FundingChart({ prices, symbol }: FundingChartProps) {
   if (snapshots.length < 2) {
     return (
       <div
-        className="w-full rounded-xl border border-border bg-card flex items-center justify-center"
+        className="w-full section-card flex flex-col items-center justify-center gap-3"
         style={{ height: 400 }}
       >
+        <div className="w-8 h-8 border-2 border-accent/40 border-t-accent rounded-full animate-spin" />
         <p className="text-muted text-sm font-mono">
           Collecting data... {snapshots.length} sample
           {snapshots.length !== 1 ? "s" : ""}
         </p>
+        <p className="text-muted/60 text-xs">Chart will appear after 2 data points</p>
       </div>
     );
   }
@@ -206,7 +208,7 @@ function ChartSVG({
     (currentRate >= 0 ? "+" : "") + (currentRate * 100).toFixed(4) + "%";
 
   return (
-    <div className="w-full rounded-xl border border-border bg-card overflow-hidden">
+    <div className="w-full section-card">
       <svg
         viewBox={`0 0 ${viewW} ${viewH}`}
         className="w-full"
@@ -313,15 +315,15 @@ function ChartSVG({
           rx={4}
           fill={
             currentRate >= 0
-              ? "rgba(34, 197, 94, 0.2)"
-              : "rgba(239, 68, 68, 0.2)"
+              ? "rgba(16, 185, 129, 0.2)"
+              : "rgba(244, 63, 94, 0.2)"
           }
         />
         <text
           x={viewW - padding.right + 34}
           y={currentY + 4}
           textAnchor="middle"
-          fill={currentRate >= 0 ? "#22c55e" : "#ef4444"}
+          fill={currentRate >= 0 ? "#10b981" : "#f43f5e"}
           style={{
             fontSize: 10,
             fontFamily: "ui-monospace, monospace",

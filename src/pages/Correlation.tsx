@@ -1,5 +1,6 @@
 import { useMemo, useRef, useEffect, useState } from "react";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
+import { LiveToggle } from "@/components/LiveBadge";
 import type { PriceData } from "@/lib/types";
 import {
   getCategory,
@@ -55,9 +56,9 @@ const CLASS_META: Record<
 > = {
   crypto: {
     label: "Crypto",
-    color: "#3b82f6",
-    colorBg: "bg-[#3b82f6]/12",
-    colorBorder: "border-l-[#3b82f6]",
+    color: "#6366f1",
+    colorBg: "bg-[#6366f1]/12",
+    colorBorder: "border-l-[#6366f1]",
   },
   stock: {
     label: "Stocks",
@@ -73,15 +74,15 @@ const CLASS_META: Record<
   },
   forex: {
     label: "Forex",
-    color: "#22c55e",
-    colorBg: "bg-[#22c55e]/12",
-    colorBorder: "border-l-[#22c55e]",
+    color: "#10b981",
+    colorBg: "bg-[#10b981]/12",
+    colorBorder: "border-l-[#10b981]",
   },
   index: {
     label: "Index",
-    color: "#ef4444",
-    colorBg: "bg-[#ef4444]/12",
-    colorBorder: "border-l-[#ef4444]",
+    color: "#f43f5e",
+    colorBg: "bg-[#f43f5e]/12",
+    colorBorder: "border-l-[#f43f5e]",
   },
 };
 
@@ -454,25 +455,25 @@ function ClassPerformanceCard({ stats }: { stats: ClassStats }) {
 
 function AlertCard({ alert }: { alert: DivergenceAlert }) {
   const severityStyles = {
-    high: "border-l-[#ef4444]/60 bg-[#ef4444]/5",
+    high: "border-l-[#f43f5e]/60 bg-[#f43f5e]/5",
     medium: "border-l-[#eab308]/60 bg-[#eab308]/5",
     low: "border-l-muted/40",
   };
 
   const severityBadge = {
-    high: "bg-[#ef4444]/20 text-[#ef4444] border-[#ef4444]/30",
+    high: "bg-[#f43f5e]/20 text-[#f43f5e] border-[#f43f5e]/30",
     medium: "bg-[#eab308]/20 text-[#eab308] border-[#eab308]/30",
     low: "bg-muted/15 text-muted border-muted/30",
   };
 
   const tagColors: Record<string, string> = {
     decorrelation: "text-[#eab308]/90 bg-[#eab308]/10",
-    "safe-haven": "text-[#3b82f6]/90 bg-[#3b82f6]/10",
-    "bearish-sentiment": "text-[#ef4444]/90 bg-[#ef4444]/10",
-    "bullish-sentiment": "text-[#22c55e]/90 bg-[#22c55e]/10",
+    "safe-haven": "text-[#6366f1]/90 bg-[#6366f1]/10",
+    "bearish-sentiment": "text-[#f43f5e]/90 bg-[#f43f5e]/10",
+    "bullish-sentiment": "text-[#10b981]/90 bg-[#10b981]/10",
     "volume-surge": "text-[#a855f7]/90 bg-[#a855f7]/10",
-    "sector-rotation": "text-[#3b82f6]/90 bg-[#3b82f6]/10",
-    "macro-event": "text-[#ef4444]/90 bg-[#ef4444]/10",
+    "sector-rotation": "text-[#6366f1]/90 bg-[#6366f1]/10",
+    "macro-event": "text-[#f43f5e]/90 bg-[#f43f5e]/10",
   };
 
   return (
@@ -610,11 +611,13 @@ export default function Correlation() {
   }, [prices]);
 
   /* Tick for live updates */
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const [, setTick] = useState(0);
   useEffect(() => {
+    if (!autoRefresh) return;
     const t = setInterval(() => setTick((v) => v + 1), 5_000);
     return () => clearInterval(t);
-  }, []);
+  }, [autoRefresh]);
 
   /* Derived data */
   const hasData = Object.keys(prices).length > 0;
@@ -649,7 +652,7 @@ export default function Correlation() {
           ))}
         </div>
         {/* Table skeleton */}
-        <div className="bg-card rounded-xl border border-border overflow-hidden shadow-card">
+        <div className="section-card shadow-card">
           <div className="p-4 space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
               <div
@@ -693,10 +696,7 @@ export default function Correlation() {
               {snapshotCount} snapshot{snapshotCount !== 1 ? "s" : ""}
             </span>
           )}
-          <span className="flex items-center gap-1.5 text-[10px] font-medium text-accent/80 bg-accent/10 px-2.5 py-1 rounded-full border border-accent/20">
-            <span className="w-1.5 h-1.5 bg-up rounded-full animate-pulse-glow" />
-            Live
-          </span>
+          <LiveToggle active={autoRefresh} onToggle={() => setAutoRefresh((p) => !p)} intervalSec={5} />
         </div>
       </div>
 
@@ -708,8 +708,8 @@ export default function Correlation() {
       </div>
 
       {/* ---- 2. Cross-Asset Comparison Table ---- */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden shadow-card stagger-item">
-        <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+      <div className="section-card shadow-card stagger-item">
+        <div className="section-header flex items-center gap-2">
           <svg
             className="w-4 h-4 text-accent"
             viewBox="0 0 24 24"
@@ -729,7 +729,7 @@ export default function Correlation() {
           </h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm zebra-rows">
             <thead>
               <tr className="border-b-2 border-border">
                 {[
@@ -875,7 +875,7 @@ export default function Correlation() {
         </div>
 
         {alerts.length === 0 ? (
-          <div className="bg-card rounded-xl border border-border p-6 text-center">
+          <div className="section-card p-6 text-center">
             <p className="text-muted text-sm">
               No significant cross-asset divergences detected right now.
               Markets are moving in relative harmony.
@@ -893,8 +893,8 @@ export default function Correlation() {
       {/* ---- 4. Top Movers Across All Classes ---- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 stagger-item">
         {/* Gainers */}
-        <div className="bg-card rounded-xl border border-border overflow-hidden border-t-2 border-t-[#22c55e]/50">
-          <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+        <div className="section-card border-t-2 border-t-[#10b981]/50">
+          <div className="section-header flex items-center gap-2">
             <svg
               className="w-4 h-4 text-up"
               viewBox="0 0 24 24"
@@ -938,8 +938,8 @@ export default function Correlation() {
         </div>
 
         {/* Losers */}
-        <div className="bg-card rounded-xl border border-border overflow-hidden border-t-2 border-t-[#ef4444]/50">
-          <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+        <div className="section-card border-t-2 border-t-[#f43f5e]/50">
+          <div className="section-header flex items-center gap-2">
             <svg
               className="w-4 h-4 text-down"
               viewBox="0 0 24 24"
@@ -984,7 +984,7 @@ export default function Correlation() {
       </div>
 
       {/* ---- 5. Funding Rate Comparison ---- */}
-      <div className="bg-card rounded-xl border border-border p-5 stagger-item">
+      <div className="section-card p-5 stagger-item">
         <div className="flex items-center gap-2 mb-4">
           <svg
             className="w-4 h-4 text-accent"
@@ -1018,20 +1018,6 @@ export default function Correlation() {
           Positive funding = longs pay shorts | Negative funding = shorts
           pay longs
         </p>
-      </div>
-
-      {/* ---- Footer ---- */}
-      <div className="border-t border-border pt-4 pb-2 flex flex-col items-center gap-2 stagger-item">
-        <p className="text-xs text-muted">
-          Powered by{" "}
-          <span className="text-accent font-semibold text-neon">
-            Pacifica API
-          </span>{" "}
-          | Cross-asset analytics unique to Pacifica DEX
-        </p>
-        <span className="text-[10px] font-medium text-accent/80 bg-accent/10 px-2.5 py-1 rounded-full">
-          Built for Pacifica Hackathon 2026
-        </span>
       </div>
     </div>
   );

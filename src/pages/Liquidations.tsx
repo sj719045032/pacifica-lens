@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
+import { LiveToggle } from "@/components/LiveBadge";
 import { formatNumber, formatPrice } from "@/lib/types";
 
 /* -------------------------------------------------------------------------- */
@@ -556,21 +557,7 @@ export default function Liquidations() {
               Updated {formatTime(lastUpdated)}
             </span>
           )}
-          <button
-            onClick={() => setAutoRefresh((p) => !p)}
-            className={`press-scale flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-all duration-200 ${
-              autoRefresh
-                ? "border-warn/30 bg-warn/10 text-warn shadow-[0_0_8px_rgba(234,179,8,0.15)]"
-                : "border-border bg-card text-muted hover:text-fg hover:border-border/80"
-            }`}
-          >
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                autoRefresh ? "bg-warn live-pulse" : "bg-muted"
-              }`}
-            />
-            {autoRefresh ? "LIVE" : "PAUSED"}
-          </button>
+          <LiveToggle active={autoRefresh} onToggle={() => setAutoRefresh((p) => !p)} intervalSec={POLL_INTERVAL / 1000} />
         </div>
       </div>
 
@@ -707,8 +694,8 @@ export default function Liquidations() {
       {/* ---------- Main Content: Feed + Heatmap ---------- */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Liquidation Feed */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+        <div className="lg:col-span-2 section-card">
+          <div className="section-header !py-3">
             <h2 className="text-fg font-semibold text-sm flex items-center gap-2">
               <svg
                 width="14"
@@ -762,8 +749,8 @@ export default function Liquidations() {
         {/* Heatmap + Info Column */}
         <div className="space-y-4">
           {/* Liquidation Heatmap */}
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-border">
+          <div className="section-card">
+            <div className="section-header !justify-start flex-col !items-start">
               <h2 className="text-fg font-semibold text-sm">
                 Liquidation Heatmap
               </h2>
@@ -868,19 +855,6 @@ export default function Liquidations() {
         </section>
       )}
 
-      {/* ---------- Footer ---------- */}
-      <div className="border-t border-border pt-3 flex items-center justify-between text-[10px] text-muted">
-        <span>
-          Data sourced from{" "}
-          <span className="text-accent font-medium">Pacifica REST API</span>{" "}
-          | Monitoring {topSymbols.length} symbols
-        </span>
-        <span className="font-mono tabular-nums">
-          {autoRefresh
-            ? `Auto-refresh ${POLL_INTERVAL / 1_000}s`
-            : "Refresh paused"}
-        </span>
-      </div>
     </div>
   );
 }

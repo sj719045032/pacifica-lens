@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { usePacificaPrices } from "@/hooks/use-pacifica-ws";
+import { LiveToggle } from "@/components/LiveBadge";
 import type { PriceData, MarketInfo } from "@/lib/types";
 import {
   getCategory,
@@ -619,7 +620,7 @@ function SentimentGauge({
 
 function ConfidenceBadge({ level }: { level: Insight["confidence"] }) {
   const styles = {
-    high: "bg-[#22c55e]/20 text-[#22c55e] border-[#22c55e]/30 shadow-[0_0_6px_rgba(34,197,94,0.2)]",
+    high: "bg-[#10b981]/20 text-[#10b981] border-[#10b981]/30 shadow-[0_0_6px_rgba(34,197,94,0.2)]",
     medium: "bg-[#eab308]/20 text-[#eab308] border-[#eab308]/30 shadow-[0_0_6px_rgba(234,179,8,0.15)]",
     low: "bg-muted/15 text-muted border-muted/30",
   };
@@ -705,6 +706,7 @@ export default function AiInsights() {
   const [marketInfo, setMarketInfo] = useState<Record<string, MarketInfo>>({});
   const [lastAnalyzed, setLastAnalyzed] = useState(0);
   const [analysisCount, setAnalysisCount] = useState(0);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   const analyzeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -805,16 +807,18 @@ export default function AiInsights() {
     fetchLeaderboard();
     fetchOrderbooks();
 
-    analyzeTimerRef.current = setInterval(() => {
-      fetchLeaderboard();
-      fetchOrderbooks();
-      setAnalysisCount((c) => c + 1);
-    }, ANALYZE_INTERVAL);
+    if (autoRefresh) {
+      analyzeTimerRef.current = setInterval(() => {
+        fetchLeaderboard();
+        fetchOrderbooks();
+        setAnalysisCount((c) => c + 1);
+      }, ANALYZE_INTERVAL);
+    }
 
     return () => {
       if (analyzeTimerRef.current) clearInterval(analyzeTimerRef.current);
     };
-  }, [fetchLeaderboard, fetchOrderbooks]);
+  }, [fetchLeaderboard, fetchOrderbooks, autoRefresh]);
 
   /* ---- Generate insights ---- */
   const insights = useMemo(() => {
@@ -875,7 +879,7 @@ export default function AiInsights() {
       </div>
 
       {/* ---- Market Summary Card ---- */}
-      <div className="bg-gradient-to-r from-[#22c55e]/20 via-[#3b82f6]/20 to-[#ef4444]/20 rounded-xl p-[1px] stagger-item">
+      <div className="bg-gradient-to-r from-[#10b981]/20 via-[#6366f1]/20 to-[#f43f5e]/20 rounded-xl p-[1px] stagger-item">
       <div className="bg-card rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <svg
@@ -953,13 +957,11 @@ export default function AiInsights() {
               {insights.length} signal{insights.length !== 1 ? "s" : ""}
             </span>
           </div>
-          <span className="text-[10px] text-muted">
-            Auto-refresh every {ANALYZE_INTERVAL / 1000}s
-          </span>
+          <LiveToggle active={autoRefresh} onToggle={() => setAutoRefresh((p) => !p)} intervalSec={ANALYZE_INTERVAL / 1000} />
         </div>
 
         {insights.length === 0 ? (
-          <div className="bg-card rounded-xl border border-border p-12 text-center">
+          <div className="section-card p-12 text-center">
             <BrainIcon className="w-8 h-8 text-muted mx-auto mb-3" />
             <p className="text-muted text-sm">
               No actionable signals detected. Markets appear calm.
@@ -980,18 +982,6 @@ export default function AiInsights() {
         )}
       </div>
 
-      {/* ---- Footer ---- */}
-      <div className="border-t border-border pt-4 pb-2 flex flex-col items-center gap-2 stagger-item">
-        <p className="text-xs text-muted">
-          Powered by{" "}
-          <span className="text-accent font-semibold">Pacifica API</span> |
-          Rule-based analysis engine | {Object.keys(prices).length} markets
-          monitored
-        </p>
-        <span className="text-[10px] font-medium text-accent/80 bg-accent/10 px-2.5 py-1 rounded-full">
-          Built for Pacifica Hackathon 2026
-        </span>
-      </div>
     </div>
   );
 }
