@@ -8,6 +8,41 @@ Pacifica Analytics is a comprehensive analytics platform for perpetual futures t
 
 Built for the **Pacifica 2026 Hackathon**, Track 2: Analytics & Data.
 
+## Screenshots
+
+### Market Overview
+![Overview](docs/screenshots/overview.png)
+
+### Funding Rate Analysis
+![Funding](docs/screenshots/funding.png)
+
+### Market Heatmap
+![Heatmap](docs/screenshots/heatmap.png)
+
+### Market Screener
+![Screener](docs/screenshots/screener.png)
+
+### Whale Tracker
+![Whales](docs/screenshots/whales.png)
+
+### Orderbook Depth
+![Orderbook](docs/screenshots/orderbook.png)
+
+### Trade Flow
+![Trade Flow](docs/screenshots/tradeflow.png)
+
+### Portfolio Analyzer
+![Portfolio](docs/screenshots/portfolio.png)
+
+### AI Market Intelligence
+![AI Insights](docs/screenshots/ai-insights.png)
+
+### Liquidation Monitor
+![Liquidations](docs/screenshots/liquidations.png)
+
+### Cross-Market Correlation
+![Correlation](docs/screenshots/correlation.png)
+
 ## Live Demo
 
 - **Production:** https://pacifica-analytics.vercel.app
@@ -202,7 +237,7 @@ See [DEMO_SCRIPT.md](./DEMO_SCRIPT.md) for the video recording script.
 - [x] Uses Pacifica API (12+ endpoints, REST + WebSocket)
 - [x] Sponsor integration (Privy wallet auth)
 - [x] Project documentation (README)
-- [ ] Demo video (max 10 min, voice narration required)
+- [x] Demo video (max 10 min, voice narration required)
 - [ ] Submit via https://forms.gle/zYm9ZBH1SoUE9t9o7
 
 ## License
